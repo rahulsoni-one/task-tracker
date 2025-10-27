@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker - Eisenhower Matrix</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .stat-icon {
+            font-size: 36px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+        
+        .stat-content h3 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .stat-content p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .view-controls {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+        }
+        
+        .view-btn {
+            padding: 10px 20px;
+            background: #e9ecef;
+            color: #495057;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .view-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .view-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .matrix-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .matrix-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .matrix-title h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .matrix-subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 20px;
+            min-height: 600px;
+        }
+        
+        .quadrant {
+            border: 3px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .quadrant-1 { border-color: #dc3545; background: #fff5f5; }
+        .quadrant-2 { border-color: #28a745; background: #f0fff4; }
+        .quadrant-3 { border-color: #ffc107; background: #fffbf0; }
+        .quadrant-4 { border-color: #6c757d; background: #f8f9fa; }
+        
+        .quadrant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+        }
+        
+        .quadrant-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .quadrant-badge {
+            background: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .quadrant-tasks {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .matrix-task {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            border-left: 4px solid;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        
+        .matrix-task:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .matrix-task.completed {
+            opacity: 0.6;
+        }
+        
+        .matrix-task-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .matrix-task-title.completed {
+            text-decoration: line-through;
+        }
+        
+        .matrix-task-meta {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .matrix-task-actions {
+            margin-top: 8px;
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-tiny {
+            padding: 4px 8px;
+            font-size: 11px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #e9ecef;
+            color: #495057;
+            transition: all 0.2s;
+        }
+        
+        .btn-tiny:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .task-form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .radio-option input[type="radio"] {
+            width: auto;
+            cursor: pointer;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .list-view {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+        }
+        
+        .list-view.active {
+            display: block;
+        }
+        
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .task-item {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .task-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+        
+        .task-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .task-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .overdue-flag {
+            display: inline-block;
+            background: #dc3545;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .backlog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .backlog-header h2 {
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .backlog-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+        }
+        
+        .backlog-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .backlog-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #dc3545;
+        }
+        
+        .backlog-stat-label {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .backlog-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .backlog-item {
+            background: #fff5f5;
+            border: 2px solid #dc3545;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .backlog-item-content {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .backlog-item-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .backlog-item-meta {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .backlog-impact {
+            background: white;
+            border-left: 4px solid #dc3545;
+            padding: 10px;
+            border-radius: 4px;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .backlog-impact-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #dc3545;
+        }
+        
+        .backlog-impact-label {
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Task Management Dashboard</h1>
+            <p class="subtitle">Eisenhower Matrix - Prioritize by Urgency & Importance</p>
+        </div>
+        
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #e3f2fd; color: #1976d2;">📋</div>
+                <div class="stat-content">
+                    <h3 id="totalTasks">0</h3>
+                    <p>Total Tasks</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #f3e5f5; color: #7b1fa2;">🎯</div>
+                <div class="stat-content">
+                    <h3 id="activeTasks">0</h3>
+                    <p>Active Tasks</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #e8f5e9; color: #388e3c;">✅</div>
+                <div class="stat-content">
+                    <h3 id="completedTasks">0</h3>
+                    <p>Completed</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #ffebee; color: #c62828;">🚩</div>
+                <div class="stat-content">
+                    <h3 id="overdueTasks">0</h3>
+                    <p>Overdue Tasks</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #fff3e0; color: #f57c00;">📈</div>
+                <div class="stat-content">
+                    <h3 id="completionRate">0%</h3>
+                    <p>Completion Rate</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="view-controls">
+            <button class="view-btn active" id="btnMatrix">🔲 Eisenhower Matrix</button>
+            <button class="view-btn" id="btnList">📝 List View</button>
+            <button class="view-btn" id="btnBacklog">📊 Task Backlog Analysis</button>
+            <button class="view-btn" id="btnAddTask">➕ Add New Task</button>
+        </div>
+        
+        <div class="task-form hidden" id="taskForm">
+            <h2 style="margin-bottom: 25px; color: #333;" id="formTitle">Add New Task</h2>
+            <div class="form-grid">
+                <div class="form-group form-group-full">
+                    <label>Task Title *</label>
+                    <input type="text" id="taskTitle" placeholder="e.g., Complete sprint planning">
+                </div>
+                <div class="form-group form-group-full">
+                    <label>Description</label>
+                    <textarea id="taskDescription" placeholder="Add details about this task..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Is this IMPORTANT? (High Impact)</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="importantYes" name="importance" value="true" checked>
+                            <label for="importantYes" style="margin: 0; font-weight: normal;">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="importantNo" name="importance" value="false">
+                            <label for="importantNo" style="margin: 0; font-weight: normal;">No</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Is this URGENT? (Time-Sensitive)</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="urgentYes" name="urgency" value="true" checked>
+                            <label for="urgentYes" style="margin: 0; font-weight: normal;">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="urgentNo" name="urgency" value="false">
+                            <label for="urgentNo" style="margin: 0; font-weight: normal;">No</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" id="taskDueDate">
+                </div>
+                
+                <div class="form-group">
+                    <label>Priority Level</label>
+                    <select id="taskPriority">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button id="btnSubmitTask">➕ Add Task to Matrix</button>
+                <button id="btnCancelEdit" style="background: #6c757d; display: none;">Cancel</button>
+            </div>
+        </div>
+        
+        <div class="matrix-container" id="matrixView">
+            <div class="matrix-title">
+                <h2>Eisenhower Decision Matrix</h2>
+                <p class="matrix-subtitle">Organize tasks by importance and urgency to prioritize effectively</p>
+            </div>
+            
+            <div class="matrix-grid">
+                <div class="quadrant quadrant-1">
+                    <div class="quadrant-header">
+                        <div>
+                            <div class="quadrant-title">🚨 DO FIRST</div>
+                            <div style="font-size: 12px; color: #666; margin-top: 5px;">Urgent & Important</div>
+                        </div>
+                        <span class="quadrant-badge" style="background: #dc3545; color: white;" id="q1-count">0</span>
+                    </div>
+                    <div class="quadrant-tasks" id="quadrant1"></div>
+                </div>
+                
+                <div class="quadrant quadrant-2">
+                    <div class="quadrant-header">
+                        <div>
+                            <div class="quadrant-title">📅 SCHEDULE</div>
+                            <div style="font-size: 12px; color: #666; margin-top: 5px;">Not Urgent & Important</div>
+                        </div>
+                        <span class="quadrant-badge" style="background: #28a745; color: white;" id="q2-count">0</span>
+                    </div>
+                    <div class="quadrant-tasks" id="quadrant2"></div>
+                </div>
+                
+                <div class="quadrant quadrant-3">
+                    <div class="quadrant-header">
+                        <div>
+                            <div class="quadrant-title">⏭️ DO SECOND</div>
+                            <div style="font-size: 12px; color: #666; margin-top: 5px;">Urgent & Not Important</div>
+                        </div>
+                        <span class="quadrant-badge" style="background: #ffc107; color: #333;" id="q3-count">0</span>
+                    </div>
+                    <div class="quadrant-tasks" id="quadrant3"></div>
+                </div>
+                
+                <div class="quadrant quadrant-4">
+                    <div class="quadrant-header">
+                        <div>
+                            <div class="quadrant-title">🗑️ ELIMINATE</div>
+                            <div style="font-size: 12px; color: #666; margin-top: 5px;">Not Urgent & Not Important</div>
+                        </div>
+                        <span class="quadrant-badge" style="background: #6c757d; color: white;" id="q4-count">0</span>
+                    </div>
+                    <div class="quadrant-tasks" id="quadrant4"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="list-view" id="listView">
+            <h2 style="margin-bottom: 25px;">All Tasks - List View</h2>
+            <div id="taskList" class="task-list"></div>
+        </div>
+        
+        <div class="list-view" id="backlogView">
+            <div class="backlog-header">
+                <h2>📊 Task Backlog Analysis</h2>
+                <div class="backlog-stats">
+                    <div class="backlog-stat">
+                        <div class="backlog-stat-value" id="totalBacklogDays">0</div>
+                        <div class="backlog-stat-label">Total Days Behind</div>
+                    </div>
+                    <div class="backlog-stat">
+                        <div class="backlog-stat-value" id="backlogTaskCount">0</div>
+                        <div class="backlog-stat-label">Overdue Tasks</div>
+                    </div>
+                </div>
+            </div>
+            <div id="backlogList" class="backlog-list"></div>
+        </div>
+    </div>
+
+    <script>
+        let tasks = [];
+        let taskIdCounter = 1;
+        let currentView = 'matrix';
+        let editingTaskId = null;
+        
+        // LOCAL STORAGE: Save and load tasks
+        function saveTasks() {
+            localStorage.setItem('taskTrackerTasks', JSON.stringify(tasks));
+            localStorage.setItem('taskTrackerCounter', taskIdCounter.toString());
+        }
+        
+        function loadTasks() {
+            const savedTasks = localStorage.getItem('taskTrackerTasks');
+            const savedCounter = localStorage.getItem('taskTrackerCounter');
+            
+            if (savedTasks) {
+                tasks = JSON.parse(savedTasks);
+            }
+            if (savedCounter) {
+                taskIdCounter = parseInt(savedCounter);
+            }
+        }
+        
+        function getQuadrant(task) {
+            const isImportant = task.importance === true || task.importance === 'true';
+            const isUrgent = task.urgency === true || task.urgency === 'true';
+            
+            if (isUrgent && isImportant) return 1;
+            if (!isUrgent && isImportant) return 2;
+            if (isUrgent && !isImportant) return 3;
+            return 4;
+        }
+        
+        function isOverdue(dateString) {
+            if (!dateString) return false;
+            const dueDate = new Date(dateString);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            return dueDate < today;
+        }
+        
+        function getDaysOverdue(dateString) {
+            if (!dateString) return 0;
+            const dueDate = new Date(dateString);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (dueDate >= today) return 0;
+            
+            const diffTime = Math.abs(today - dueDate);
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+        
+        function calculateBacklogImpact(task) {
+            if (!task.dueDate || !isOverdue(task.dueDate)) return 0;
+            
+            const daysOverdue = getDaysOverdue(task.dueDate);
+            
+            if (task.completed && task.completedAt) {
+                const dueDate = new Date(task.dueDate);
+                const completedDate = new Date(task.completedAt);
+                const delayTime = completedDate - dueDate;
+                return Math.max(0, Math.ceil(delayTime / (1000 * 60 * 60 * 24)));
+            }
+            
+            return daysOverdue;
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+        
+        function editTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+            
+            editingTaskId = id;
+            
+            document.getElementById('formTitle').textContent = 'Edit Task';
+            document.getElementById('taskTitle').value = task.title;
+            document.getElementById('taskDescription').value = task.description || '';
+            document.getElementById('taskDueDate').value = task.dueDate || '';
+            document.getElementById('taskPriority').value = task.priority;
+            
+            document.querySelector(`input[name="importance"][value="${task.importance}"]`).checked = true;
+            document.querySelector(`input[name="urgency"][value="${task.urgency}"]`).checked = true;
+            
+            document.getElementById('btnSubmitTask').textContent = '💾 Update Task';
+            document.getElementById('btnCancelEdit').style.display = 'inline-block';
+            
+            document.getElementById('taskForm').classList.remove('hidden');
+            document.getElementById('taskForm').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function cancelEdit() {
+            editingTaskId = null;
+            document.getElementById('formTitle').textContent = 'Add New Task';
+            document.getElementById('btnSubmitTask').textContent = '➕ Add Task to Matrix';
+            document.getElementById('btnCancelEdit').style.display = 'none';
+            clearForm();
+            document.getElementById('taskForm').classList.add('hidden');
+        }
+        
+        function clearForm() {
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('taskDescription').value = '';
+            document.getElementById('taskDueDate').value = '';
+            document.getElementById('taskPriority').value = 'medium';
+            document.querySelector('input[name="importance"][value="true"]').checked = true;
+            document.querySelector('input[name="urgency"][value="true"]').checked = true;
+        }
+        
+        function addOrUpdateTask() {
+            const title = document.getElementById('taskTitle').value;
+            const description = document.getElementById('taskDescription').value;
+            const dueDate = document.getElementById('taskDueDate').value;
+            const priority = document.getElementById('taskPriority').value;
+            const importance = document.querySelector('input[name="importance"]:checked').value;
+            const urgency = document.querySelector('input[name="urgency"]:checked').value;
+            
+            if (!title.trim()) {
+                alert('Please enter a task title!');
+                return;
+            }
+            
+            let finalPriority = priority;
+            if (dueDate && isOverdue(dueDate)) {
+                finalPriority = 'high';
+            }
+            
+            if (editingTaskId !== null) {
+                const task = tasks.find(t => t.id === editingTaskId);
+                if (task) {
+                    task.title = title;
+                    task.description = description;
+                    task.importance = importance === 'true';
+                    task.urgency = urgency === 'true';
+                    task.priority = finalPriority;
+                    task.dueDate = dueDate;
+                }
+                cancelEdit();
+            } else {
+                const task = {
+                    id: taskIdCounter++,
+                    title: title,
+                    description: description,
+                    importance: importance === 'true',
+                    urgency: urgency === 'true',
+                    priority: finalPriority,
+                    dueDate: dueDate,
+                    completed: false,
+                    createdAt: new Date().toISOString(),
+                    completedAt: null
+                };
+                
+                tasks.push(task);
+                clearForm();
+                document.getElementById('taskForm').classList.add('hidden');
+            }
+            
+            saveTasks();
+            updateDashboard();
+            renderMatrix();
+            renderList();
+            renderBacklog();
+        }
+        
+        function updateDashboard() {
+            const total = tasks.length;
+            const active = tasks.filter(t => !t.completed).length;
+            const completed = tasks.filter(t => t.completed).length;
+            const overdue = tasks.filter(t => !t.completed && t.dueDate && isOverdue(t.dueDate)).length;
+            const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+            
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('activeTasks').textContent = active;
+            document.getElementById('completedTasks').textContent = completed;
+            document.getElementById('overdueTasks').textContent = overdue;
+            document.getElementById('completionRate').textContent = rate + '%';
+        }
+        
+        function renderMatrix() {
+            const quadrants = { 1: [], 2: [], 3: [], 4: [] };
+            
+            tasks.forEach(task => {
+                const q = getQuadrant(task);
+                quadrants[q].push(task);
+            });
+            
+            for (let i = 1; i <= 4; i++) {
+                const container = document.getElementById(`quadrant${i}`);
+                const quadrantTasks = quadrants[i];
+                
+                document.getElementById(`q${i}-count`).textContent = quadrantTasks.length;
+                
+                if (quadrantTasks.length === 0) {
+                    container.innerHTML = '<div style="color: #999; font-size: 13px; text-align: center; padding: 20px;">No tasks in this quadrant</div>';
+                } else {
+                    container.innerHTML = quadrantTasks.map(task => {
+                        let borderColor = '#e9ecef';
+                        if (task.priority === 'high') borderColor = '#dc3545';
+                        if (task.priority === 'medium') borderColor = '#ffc107';
+                        if (task.priority === 'low') borderColor = '#28a745';
+                        
+                        const overdueFlag = (!task.completed && task.dueDate && isOverdue(task.dueDate)) 
+                            ? '<span class="overdue-flag">🚩 OVERDUE</span>' 
+                            : '';
+                        
+                        return `
+                            <div class="matrix-task ${task.completed ? 'completed' : ''}" 
+                                 style="border-left-color: ${borderColor}">
+                                <div class="matrix-task-title ${task.completed ? 'completed' : ''}">${task.title}${overdueFlag}</div>
+                                ${task.description ? `<div style="font-size: 12px; color: #666; margin-top: 5px;">${task.description}</div>` : ''}
+                                <div class="matrix-task-meta">
+                                    ${task.dueDate ? `<span>📅 ${formatDate(task.dueDate)}</span>` : ''}
+                                    <span>🏷️ ${task.priority}</span>
+                                    ${!task.completed && task.dueDate && isOverdue(task.dueDate) ? `<span style="color: #dc3545; font-weight: 600;">${getDaysOverdue(task.dueDate)} days late</span>` : ''}
+                                </div>
+                                <div class="matrix-task-actions">
+                                    <button class="btn-tiny" onclick="toggleComplete(${task.id})">
+                                        ${task.completed ? '↩️ Reopen' : '✓ Done'}
+                                    </button>
+                                    <button class="btn-tiny" onclick="editTask(${task.id})">✏️ Edit</button>
+                                    <button class="btn-tiny" onclick="deleteTask(${task.id})">🗑️ Delete</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+        }
+        
+        function renderList() {
+            const listContainer = document.getElementById('taskList');
+            
+            if (tasks.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 64px;">📭</div>
+                        <h3>No tasks yet</h3>
+                        <p>Click "Add New Task" to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            listContainer.innerHTML = tasks.map(task => {
+                const quadrant = getQuadrant(task);
+                const quadrantLabels = {
+                    1: '🚨 Do First',
+                    2: '📅 Schedule',
+                    3: '⏭️ Do Second',
+                    4: '🗑️ Eliminate'
+                };
+                
+                const overdueInfo = (!task.completed && task.dueDate && isOverdue(task.dueDate))
+                    ? `<span class="badge" style="background: #dc3545; color: white;">🚩 ${getDaysOverdue(task.dueDate)} days overdue</span>`
+                    : '';
+                
+                return `
+                    <div class="task-item">
+                        <div class="task-header">
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-badges">
+                                <span class="badge" style="background: #e3f2fd; color: #1976d2;">
+                                    ${quadrantLabels[quadrant]}
+                                </span>
+                                <span class="badge" style="background: #fff3e0; color: #f57c00;">
+                                    ${task.priority}
+                                </span>
+                                ${task.completed ? '<span class="badge" style="background: #e8f5e9; color: #388e3c;">✓ Done</span>' : ''}
+                                ${overdueInfo}
+                            </div>
+                        </div>
+                        ${task.description ? `<div style="color: #666; margin-bottom: 10px;">${task.description}</div>` : ''}
+                        <div style="font-size: 13px; color: #999; margin-bottom: 15px;">
+                            ${task.dueDate ? `📅 Due: ${formatDate(task.dueDate)} • ` : ''}
+                            Important: ${task.importance ? 'Yes' : 'No'} • 
+                            Urgent: ${task.urgency ? 'Yes' : 'No'}
+                        </div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button style="padding: 8px 16px; font-size: 14px;" onclick="toggleComplete(${task.id})">
+                                ${task.completed ? '↩️ Reopen' : '✓ Mark Complete'}
+                            </button>
+                            <button style="padding: 8px 16px; font-size: 14px; background: #28a745;" onclick="editTask(${task.id})">
+                                ✏️ Edit
+                            </button>
+                            <button style="padding: 8px 16px; font-size: 14px; background: #dc3545;" onclick="deleteTask(${task.id})">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function renderBacklog() {
+            const backlogList = document.getElementById('backlogList');
+            
+            const tasksWithDueDate = tasks.filter(t => t.dueDate);
+            
+            const overdueTasks = tasksWithDueDate.filter(t => 
+                (!t.completed && isOverdue(t.dueDate)) ||
+                (t.completed && t.completedAt && new Date(t.completedAt) > new Date(t.dueDate))
+            );
+            
+            overdueTasks.sort((a, b) => {
+                return calculateBacklogImpact(b) - calculateBacklogImpact(a);
+            });
+            
+            const totalBacklogDays = overdueTasks.reduce((sum, task) => {
+                return sum + calculateBacklogImpact(task);
+            }, 0);
+            
+            document.getElementById('totalBacklogDays').textContent = totalBacklogDays;
+            document.getElementById('backlogTaskCount').textContent = overdueTasks.length;
+            
+            if (overdueTasks.length === 0) {
+                backlogList.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 64px;">🎉</div>
+                        <h3>No Task Backlog!</h3>
+                        <p>All tasks are on schedule. Great work!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            backlogList.innerHTML = overdueTasks.map(task => {
+                const backlogDays = calculateBacklogImpact(task);
+                const statusText = task.completed 
+                    ? `Completed ${getDaysOverdue(task.dueDate)} days late`
+                    : `Currently ${getDaysOverdue(task.dueDate)} days overdue`;
+                
+                const statusColor = task.completed ? '#ff9800' : '#dc3545';
+                
+                return `
+                    <div class="backlog-item">
+                        <div class="backlog-item-content">
+                            <div class="backlog-item-title">
+                                ${task.completed ? '✅' : '⏰'} ${task.title}
+                            </div>
+                            <div class="backlog-item-meta">
+                                <span>📅 Due: ${formatDate(task.dueDate)}</span>
+                                <span style="color: ${statusColor}; font-weight: 600;">${statusText}</span>
+                                <span>Priority: ${task.priority}</span>
+                                ${task.completed && task.completedAt ? `<span>Completed: ${formatDate(task.completedAt.split('T')[0])}</span>` : ''}
+                            </div>
+                            ${task.description ? `<div style="font-size: 12px; color: #666; margin-top: 8px;">${task.description}</div>` : ''}
+                        </div>
+                        <div class="backlog-impact">
+                            <div class="backlog-impact-value">${backlogDays}</div>
+                            <div class="backlog-impact-label">Days Delayed</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function toggleComplete(id) {
+            const task = tasks.find(t => t.id === id);
+            
+            if (task) {
+                task.completed = !task.completed;
+                
+                if (task.completed) {
+                    task.completedAt = new Date().toISOString();
+                } else {
+                    task.completedAt = null;
+                }
+                
+                saveTasks();
+                updateDashboard();
+                renderMatrix();
+                renderList();
+                renderBacklog();
+            }
+        }
+        
+        function deleteTask(id) {
+            if (!confirm('Are you sure you want to delete this task?')) {
+                return;
+            }
+            
+            tasks = tasks.filter(t => t.id !== id);
+            
+            saveTasks();
+            updateDashboard();
+            renderMatrix();
+            renderList();
+            renderBacklog();
+        }
+        
+        function switchView(view) {
+            currentView = view;
+            
+            const matrixView = document.getElementById('matrixView');
+            const listView = document.getElementById('listView');
+            const backlogView = document.getElementById('backlogView');
+            
+            matrixView.style.display = 'none';
+            listView.style.display = 'none';
+            backlogView.style.display = 'none';
+            
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (view === 'matrix') {
+                matrixView.style.display = 'block';
+                document.getElementById('btnMatrix').classList.add('active');
+            } else if (view === 'list') {
+                listView.style.display = 'block';
+                document.getElementById('btnList').classList.add('active');
+            } else if (view === 'backlog') {
+                backlogView.style.display = 'block';
+                document.getElementById('btnBacklog').classList.add('active');
+                renderBacklog();
+            }
+        }
+        
+        function toggleForm() {
+            const form = document.getElementById('taskForm');
+            form.classList.toggle('hidden');
+        }
+        
+        // EVENT LISTENERS
+        document.getElementById('btnMatrix').addEventListener('click', () => switchView('matrix'));
+        document.getElementById('btnList').addEventListener('click', () => switchView('list'));
+        document.getElementById('btnBacklog').addEventListener('click', () => switchView('backlog'));
+        document.getElementById('btnAddTask').addEventListener('click', toggleForm);
+        document.getElementById('btnSubmitTask').addEventListener('click', addOrUpdateTask);
+        document.getElementById('btnCancelEdit').addEventListener('click', cancelEdit);
+        
+        // INITIALIZATION
+        loadTasks();
+        updateDashboard();
+        renderMatrix();
+        renderList();
+        renderBacklog();
+    </script>
+</body>
+</html>
