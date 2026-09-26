@@ -1,1198 +1,1485 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Tracker - Eisenhower Matrix</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        h1 {
-            color: #333;
-            margin-bottom: 5px;
-            font-size: 32px;
-        }
-        
-        .subtitle {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .dashboard-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .stat-icon {
-            font-size: 36px;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-        }
-        
-        .stat-content h3 {
-            font-size: 28px;
-            color: #333;
-            margin-bottom: 5px;
-        }
-        
-        .stat-content p {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .view-controls {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            flex-wrap: wrap;
-        }
-        
-        .view-btn {
-            padding: 10px 20px;
-            background: #e9ecef;
-            color: #495057;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .view-btn.active {
-            background: #667eea;
-            color: white;
-        }
-        
-        .view-btn:hover {
-            transform: translateY(-2px);
-        }
-        
-        .matrix-container {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin-bottom: 20px;
-        }
-        
-        .matrix-title {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .matrix-title h2 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .matrix-subtitle {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .matrix-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            gap: 20px;
-            min-height: 600px;
-        }
-        
-        .quadrant {
-            border: 3px solid #e9ecef;
-            border-radius: 12px;
-            padding: 20px;
-            background: #f8f9fa;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .quadrant-1 { border-color: #dc3545; background: #fff5f5; }
-        .quadrant-2 { border-color: #28a745; background: #f0fff4; }
-        .quadrant-3 { border-color: #ffc107; background: #fffbf0; }
-        .quadrant-4 { border-color: #6c757d; background: #f8f9fa; }
-        
-        .quadrant-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(0,0,0,0.1);
-        }
-        
-        .quadrant-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #333;
-        }
-        
-        .quadrant-badge {
-            background: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .quadrant-tasks {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .matrix-task {
-            background: white;
-            border-radius: 8px;
-            padding: 12px;
-            border-left: 4px solid;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transition: all 0.3s;
-        }
-        
-        .matrix-task:hover {
-            transform: translateX(5px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        
-        .matrix-task.completed {
-            opacity: 0.6;
-        }
-        
-        .matrix-task-title {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-        
-        .matrix-task-title.completed {
-            text-decoration: line-through;
-        }
-        
-        .matrix-task-meta {
-            font-size: 12px;
-            color: #666;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .matrix-task-actions {
-            margin-top: 8px;
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-        }
-        
-        .btn-tiny {
-            padding: 4px 8px;
-            font-size: 11px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            background: #e9ecef;
-            color: #495057;
-            transition: all 0.2s;
-        }
-        
-        .btn-tiny:hover {
-            background: #667eea;
-            color: white;
-        }
-        
-        .task-form {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin-bottom: 20px;
-        }
-        
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group-full {
-            grid-column: 1 / -1;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-            font-family: inherit;
-        }
-        
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-        
-        .radio-group {
-            display: flex;
-            gap: 20px;
-        }
-        
-        .radio-option {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .radio-option input[type="radio"] {
-            width: auto;
-            cursor: pointer;
-        }
-        
-        button {
-            background: #667eea;
-            color: white;
-            padding: 14px 30px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        button:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        
-        .list-view {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: none;
-        }
-        
-        .list-view.active {
-            display: block;
-        }
-        
-        .task-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .task-item {
-            background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 20px;
-            transition: all 0.3s;
-        }
-        
-        .task-item:hover {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
-        }
-        
-        .task-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 10px;
-        }
-        
-        .task-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .task-badges {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        
-        .badge {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #999;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        .overdue-flag {
-            display: inline-block;
-            background: #dc3545;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-left: 8px;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-        
-        .backlog-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #e9ecef;
-        }
-        
-        .backlog-header h2 {
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .backlog-stats {
-            display: flex;
-            gap: 20px;
-            font-size: 14px;
-        }
-        
-        .backlog-stat {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .backlog-stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #dc3545;
-        }
-        
-        .backlog-stat-label {
-            color: #666;
-            font-size: 12px;
-        }
-        
-        .backlog-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        
-        .backlog-item {
-            background: #fff5f5;
-            border: 2px solid #dc3545;
-            border-radius: 8px;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .backlog-item-content {
-            flex: 1;
-            min-width: 250px;
-        }
-        
-        .backlog-item-title {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-        }
-        
-        .backlog-item-meta {
-            font-size: 12px;
-            color: #666;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .backlog-impact {
-            background: white;
-            border-left: 4px solid #dc3545;
-            padding: 10px;
-            border-radius: 4px;
-            min-width: 120px;
-            text-align: center;
-        }
-        
-        .backlog-impact-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: #dc3545;
-        }
-        
-        .backlog-impact-label {
-            font-size: 11px;
-            color: #666;
-            margin-top: 2px;
-        }
-        
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-        
-        .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 0;
-            color: #666;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0A0A0A">
+<title>TaskFlow Pro</title>
+<style>
+  :root {
+    --bg:        #0A0A0A;
+    --bg2:       #111111;
+    --bg3:       #1A1A1A;
+    --bg4:       #222222;
+    --border:    #2A2A2A;
+    --border2:   #333333;
+    --text:      #F0F0F0;
+    --text2:     #888888;
+    --text3:     #555555;
+    --accent:    #FFFFFF;
+    --accent-dim:#CCCCCC;
+    --red:       #FF4444;
+    --green:     #00C896;
+    --amber:     #FFB800;
+    --blue:      #4D9EFF;
+    --purple:    #9B6FFF;
+    --shadow:    0 8px 32px rgba(0,0,0,0.6);
+    --radius:    10px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── TOP BAR ─────────────────────────────── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 56px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 16px; font-weight: 700; letter-spacing: -0.3px;
+  }
+  .logo-icon {
+    width: 28px; height: 28px; background: var(--accent);
+    border-radius: 6px; display: flex; align-items: center;
+    justify-content: center; font-size: 14px;
+  }
+  .collab-bar {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .presence-avatars {
+    display: flex; align-items: center;
+  }
+  .avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--bg2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    margin-left: -6px; cursor: default;
+    position: relative;
+  }
+  .avatar:first-child { margin-left: 0; }
+  .avatar .tooltip {
+    display: none; position: absolute; bottom: -28px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg4); border: 1px solid var(--border2);
+    color: var(--text); font-size: 11px; padding: 3px 8px;
+    border-radius: 4px; white-space: nowrap; z-index: 99;
+  }
+  .avatar:hover .tooltip { display: block; }
+
+  .sync-status {
+    font-size: 12px; color: var(--text2);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .sync-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green); animation: pulse 2s infinite;
+  }
+  .sync-dot.syncing { background: var(--amber); animation: none; }
+  .sync-dot.offline { background: var(--red); animation: none; }
+  @keyframes pulse {
+    0%,100% { opacity:1; } 50% { opacity:0.3; }
+  }
+
+  .join-btn {
+    background: var(--accent); color: #000;
+    border: none; border-radius: 6px;
+    padding: 6px 14px; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: opacity .2s;
+  }
+  .join-btn:hover { opacity: .85; }
+  .join-btn.joined {
+    background: var(--bg4); color: var(--text2); border: 1px solid var(--border2);
+  }
+
+  /* ─── LAYOUT ───────────────────────────────── */
+  .app {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ─── SIDEBAR ──────────────────────────────── */
+  .sidebar {
+    width: 220px; flex-shrink: 0;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    padding: 16px 8px;
+    overflow-y: auto;
+  }
+  .nav-section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+    color: var(--text3); padding: 6px 12px 4px;
+    text-transform: uppercase;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 8px;
+    cursor: pointer; transition: background .15s;
+    font-size: 13px; color: var(--text2);
+    margin-bottom: 1px;
+  }
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: var(--accent); color: #000; font-weight: 600; }
+  .nav-item.active .nav-badge { background: rgba(0,0,0,0.15); color: #000; }
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-badge {
+    margin-left: auto; background: var(--bg4);
+    color: var(--text2); border-radius: 99px;
+    padding: 1px 7px; font-size: 11px; font-weight: 600;
+  }
+  .sidebar-bottom {
+    margin-top: auto; padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ─── MAIN ─────────────────────────────────── */
+  .main {
+    flex: 1; overflow-y: auto;
+    background: var(--bg);
+  }
+  .page-header {
+    padding: 28px 32px 0;
+    display: flex; justify-content: space-between; align-items: flex-start;
+  }
+  .page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+  .page-sub { color: var(--text2); font-size: 13px; margin-top: 4px; }
+  .page-actions { display: flex; gap: 8px; }
+  .content { padding: 24px 32px; }
+
+  /* ─── BUTTONS ──────────────────────────────── */
+  .btn {
+    border: none; border-radius: 8px; cursor: pointer;
+    font-size: 13px; font-weight: 600;
+    padding: 8px 16px; transition: all .2s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-white { background: var(--accent); color: #000; }
+  .btn-white:hover { opacity: .88; }
+  .btn-ghost {
+    background: var(--bg3); color: var(--text);
+    border: 1px solid var(--border2);
+  }
+  .btn-ghost:hover { background: var(--bg4); }
+  .btn-danger { background: #2A0A0A; color: var(--red); border: 1px solid #3A1010; }
+  .btn-danger:hover { background: #3A1010; }
+  .btn-sm { padding: 5px 10px; font-size: 11px; border-radius: 6px; }
+
+  /* ─── STAT CARDS ───────────────────────────── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
+    gap: 14px; margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+  }
+  .stat-label { font-size: 12px; color: var(--text2); margin-bottom: 8px; }
+  .stat-value { font-size: 36px; font-weight: 700; line-height: 1; }
+  .stat-value.danger { color: var(--red); }
+  .stat-value.success { color: var(--green); }
+
+  /* ─── MATRIX ───────────────────────────────── */
+  .matrix-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 700px) { .matrix-grid { grid-template-columns: 1fr; } }
+
+  .quadrant {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px; min-height: 280px;
+  }
+  .q-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .q-title { font-size: 13px; font-weight: 700; }
+  .q-count {
+    background: var(--bg4); color: var(--text2);
+    border-radius: 99px; padding: 2px 8px; font-size: 11px; font-weight: 700;
+  }
+
+  /* ─── TASK CARD ────────────────────────────── */
+  .task-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px; margin-bottom: 8px;
+    transition: all .2s;
+  }
+  .task-card:hover { border-color: var(--border2); background: var(--bg4); }
+  .task-card.completed { opacity: .45; }
+
+  .task-row {
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .task-check {
+    width: 16px; height: 16px; border-radius: 4px;
+    border: 2px solid var(--border2); flex-shrink: 0; margin-top: 2px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all .2s;
+  }
+  .task-check.done { background: var(--green); border-color: var(--green); }
+  .task-check.done::after { content:"✓"; color:#000; font-size:10px; font-weight:900; }
+  .task-name { font-size: 13px; font-weight: 500; flex: 1; line-height: 1.4; }
+  .task-name.striked { text-decoration: line-through; color: var(--text2); }
+
+  .task-meta {
+    display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;
+    align-items: center;
+  }
+  .chip {
+    font-size: 11px; padding: 2px 8px; border-radius: 99px;
+    background: var(--bg4); color: var(--text2); border: 1px solid var(--border);
+  }
+  .chip.red { background: #1A0505; color: var(--red); border-color: #2A0A0A; }
+  .chip.green { background: #031A12; color: var(--green); border-color: #0A2A20; }
+  .chip.amber { background: #1A1000; color: var(--amber); border-color: #2A1A00; }
+
+  .task-actions-row {
+    display: flex; gap: 6px; margin-top: 10px;
+  }
+
+  /* ─── DRIFT BAR ────────────────────────────── */
+  .drift-wrap { margin-top: 10px; }
+  .drift-labels {
+    display: flex; justify-content: space-between;
+    font-size: 10px; color: var(--text3); margin-bottom: 4px;
+  }
+  .drift-track {
+    height: 5px; background: var(--bg); border-radius: 99px;
+    overflow: hidden;
+  }
+  .drift-fill {
+    height: 100%; border-radius: 99px;
+    transition: width .4s;
+  }
+  .drift-fill.ok   { background: var(--green); }
+  .drift-fill.warn { background: var(--amber); }
+  .drift-fill.bad  { background: var(--red); }
+  .drift-footer {
+    display: flex; justify-content: space-between;
+    margin-top: 4px; font-size: 10px; color: var(--text3);
+  }
+  .drift-badge {
+    background: var(--bg4); border: 1px solid var(--border);
+    border-radius: 99px; padding: 1px 7px;
+    font-size: 10px; font-weight: 700;
+  }
+  .drift-badge.shifted { color: var(--red); border-color: #2A0A0A; background: #1A0505; }
+
+  /* ─── CALENDAR ─────────────────────────────── */
+  .cal-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .cal-month { font-size: 18px; font-weight: 700; }
+  .cal-controls { display: flex; gap: 8px; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+  .cal-day-hdr { text-align: center; font-size: 11px; font-weight: 700; color: var(--text3); padding: 8px; }
+  .cal-cell {
+    aspect-ratio: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    border-radius: 8px; font-size: 13px; cursor: pointer;
+    background: var(--bg3); border: 1px solid transparent;
+    position: relative; transition: all .15s;
+  }
+  .cal-cell:hover { background: var(--bg4); border-color: var(--border); }
+  .cal-cell.today { background: var(--accent); color: #000; font-weight: 700; }
+  .cal-cell.has-task { border-color: var(--blue); }
+  .cal-cell.other-month { opacity: .3; }
+  .cal-dot {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--blue); position: absolute; bottom: 5px;
+  }
+  .cal-cell.today .cal-dot { background: #000; }
+  .day-tasks-panel { margin-top: 20px; }
+
+  /* ─── BACKLOG ───────────────────────────────── */
+  .backlog-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    border-radius: var(--radius); padding: 16px;
+    margin-bottom: 12px; display: flex; gap: 16px; align-items: center;
+  }
+  .backlog-info { flex: 1; }
+  .backlog-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .backlog-meta { font-size: 12px; color: var(--text2); }
+  .backlog-impact {
+    background: #1A0505; border: 1px solid #2A0A0A;
+    border-radius: 8px; padding: 12px 16px;
+    text-align: center; min-width: 90px;
+  }
+  .impact-num { font-size: 28px; font-weight: 800; color: var(--red); }
+  .impact-lbl { font-size: 10px; color: var(--text3); }
+
+  /* ─── BOOKING ───────────────────────────────── */
+  .booking-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 700px) { .booking-grid { grid-template-columns: 1fr; } }
+  .section-title { font-size: 13px; font-weight: 700; color: var(--text2); margin-bottom: 14px; text-transform: uppercase; letter-spacing: .8px; }
+  .time-slots { display: grid; grid-template-columns: repeat(auto-fill,minmax(90px,1fr)); gap: 8px; margin-top: 12px; }
+  .slot {
+    padding: 10px; border: 1px solid var(--border);
+    border-radius: 8px; text-align: center;
+    cursor: pointer; font-size: 12px; font-weight: 600;
+    background: var(--bg3); color: var(--text2); transition: all .15s;
+  }
+  .slot:hover { border-color: var(--accent); color: var(--accent); }
+  .slot.booked { background: var(--bg); color: var(--text3); cursor: not-allowed; }
+  .booking-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px; margin-bottom: 10px;
+  }
+  .booking-name { font-size: 13px; font-weight: 700; }
+  .booking-detail { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+  /* ─── SYNOPSIS ──────────────────────────────── */
+  .synopsis-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px; margin-bottom: 14px;
+  }
+  .synopsis-date { font-size: 18px; font-weight: 700; margin-bottom: 14px; }
+  .synopsis-section-label { font-size: 10px; font-weight: 700; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .synopsis-item { background: var(--bg3); border-radius: 6px; padding: 10px 12px; margin-bottom: 6px; font-size: 13px; }
+  .synopsis-summary { background: var(--bg3); border-left: 3px solid var(--accent); padding: 12px 14px; border-radius: 6px; font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .view-switcher { display: flex; gap: 6px; margin-bottom: 20px; background: var(--bg2); border: 1px solid var(--border); padding: 4px; border-radius: 8px; width: fit-content; }
+  .vsw-btn { padding: 7px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; background: transparent; color: var(--text2); transition: all .15s; }
+  .vsw-btn.active { background: var(--accent); color: #000; }
+
+  /* ─── MODAL ─────────────────────────────────── */
+  .modal-bg {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.75); z-index: 1000;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 14px; width: 100%; max-width: 480px;
+    max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow);
+  }
+  .modal-header {
+    padding: 20px 20px 0;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+  }
+  .modal-title { font-size: 17px; font-weight: 700; }
+  .modal-close { background: none; border: none; color: var(--text2); font-size: 22px; cursor: pointer; padding: 0; }
+  .modal-body { padding: 0 20px 20px; }
+
+  /* ─── FORM ──────────────────────────────────── */
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; display: block; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; padding: 10px 12px;
+    background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: 8px; color: var(--text);
+    font-size: 14px; font-family: inherit;
+    transition: border-color .2s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent); }
+  .form-textarea { resize: vertical; min-height: 70px; }
+  .form-select option { background: var(--bg3); }
+  .radio-group { display: flex; gap: 12px; }
+  .radio-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px; }
+
+  /* ─── COLLAB PANEL ──────────────────────────── */
+  .collab-tag {
+    font-size: 11px; padding: 2px 8px; border-radius: 99px;
+    background: var(--bg4); border: 1px solid var(--border2); color: var(--text2);
+  }
+  .activity-feed { margin-top: 12px; }
+  .activity-item { font-size: 12px; color: var(--text2); padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .activity-item:last-child { border: none; }
+  .activity-who { color: var(--text); font-weight: 600; }
+
+  /* ─── MISC ──────────────────────────────────── */
+  .empty { text-align: center; padding: 40px 20px; color: var(--text3); }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: .4; }
+  .section-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  .mb-16 { margin-bottom: 16px; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .hidden { display: none !important; }
+  .row { display: flex; gap: 8px; align-items: center; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📊 Task Management Dashboard</h1>
-            <p class="subtitle">Eisenhower Matrix - Prioritize by Urgency & Importance</p>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">⬛</div>
+    TaskFlow Pro
+  </div>
+  <div class="collab-bar">
+    <div class="presence-avatars" id="presenceAvatars"></div>
+    <div class="sync-status">
+      <div class="sync-dot" id="syncDot"></div>
+      <span id="syncLabel">Saved</span>
+    </div>
+    <button class="join-btn" id="joinBtn" onclick="showJoinModal()">Join Session</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="nav-section-label">Workspace</div>
+    <div class="nav-item active" onclick="go('dashboard')" data-v="dashboard">
+      <span class="nav-icon">⬛</span> Dashboard
+      <span class="nav-badge" id="nb-dash">0</span>
+    </div>
+    <div class="nav-item" onclick="go('calendar')" data-v="calendar">
+      <span class="nav-icon">📅</span> Calendar
+    </div>
+    <div class="nav-item" onclick="go('synopsis')" data-v="synopsis">
+      <span class="nav-icon">📋</span> Synopsis
+    </div>
+    <div class="nav-section-label" style="margin-top:12px;">Analytics</div>
+    <div class="nav-item" onclick="go('backlog')" data-v="backlog">
+      <span class="nav-icon">📈</span> Backlog
+      <span class="nav-badge" id="nb-backlog" style="color:var(--red)">0</span>
+    </div>
+    <div class="nav-section-label" style="margin-top:12px;">People</div>
+    <div class="nav-item" onclick="go('booking')" data-v="booking">
+      <span class="nav-icon">🔖</span> Bookings
+      <span class="nav-badge" id="nb-booking">0</span>
+    </div>
+    <div class="nav-item" onclick="go('collab')" data-v="collab">
+      <span class="nav-icon">👥</span> Team
+    </div>
+    <div class="nav-section-label" style="margin-top:12px;">Tasks</div>
+    <div class="nav-item" onclick="go('list')" data-v="list">
+      <span class="nav-icon">📝</span> All Tasks
+    </div>
+    <div class="sidebar-bottom">
+      <div class="nav-item" onclick="go('settings')" data-v="settings">
+        <span class="nav-icon">⚙️</span> Settings
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div id="dashboardView" class="view active">
+      <div class="page-header">
+        <div><div class="page-title">Dashboard</div><div class="page-sub">Eisenhower Priority Matrix</div></div>
+        <div class="page-actions">
+          <button class="btn btn-white" onclick="openTaskModal()">+ New Task</button>
         </div>
-        
-        <div class="dashboard-stats">
-            <div class="stat-card">
-                <div class="stat-icon" style="background: #e3f2fd; color: #1976d2;">📋</div>
-                <div class="stat-content">
-                    <h3 id="totalTasks">0</h3>
-                    <p>Total Tasks</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: #f3e5f5; color: #7b1fa2;">🎯</div>
-                <div class="stat-content">
-                    <h3 id="activeTasks">0</h3>
-                    <p>Active Tasks</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: #e8f5e9; color: #388e3c;">✅</div>
-                <div class="stat-content">
-                    <h3 id="completedTasks">0</h3>
-                    <p>Completed</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: #ffebee; color: #c62828;">🚩</div>
-                <div class="stat-content">
-                    <h3 id="overdueTasks">0</h3>
-                    <p>Overdue Tasks</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: #fff3e0; color: #f57c00;">📈</div>
-                <div class="stat-content">
-                    <h3 id="completionRate">0%</h3>
-                    <p>Completion Rate</p>
-                </div>
-            </div>
+      </div>
+      <div class="content">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Tasks</div>
+            <div class="stat-value" id="sTot">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active</div>
+            <div class="stat-value" id="sAct">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Completed</div>
+            <div class="stat-value success" id="sDone">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Overdue</div>
+            <div class="stat-value danger" id="sOver">0</div>
+          </div>
         </div>
-        
-        <div class="view-controls">
-            <button class="view-btn active" id="btnMatrix">🔲 Eisenhower Matrix</button>
-            <button class="view-btn" id="btnList">📝 List View</button>
-            <button class="view-btn" id="btnBacklog">📊 Task Backlog Analysis</button>
-            <button class="view-btn" id="btnAddTask">➕ Add New Task</button>
+        <div class="matrix-grid">
+          <div class="quadrant">
+            <div class="q-header"><div class="q-title">🚨 Do First</div><div class="q-count" id="qc1">0</div></div>
+            <div id="q1"></div>
+          </div>
+          <div class="quadrant">
+            <div class="q-header"><div class="q-title">📅 Schedule</div><div class="q-count" id="qc2">0</div></div>
+            <div id="q2"></div>
+          </div>
+          <div class="quadrant">
+            <div class="q-header"><div class="q-title">⏭️ Do Second</div><div class="q-count" id="qc3">0</div></div>
+            <div id="q3"></div>
+          </div>
+          <div class="quadrant">
+            <div class="q-header"><div class="q-title">🗑️ Eliminate</div><div class="q-count" id="qc4">0</div></div>
+            <div id="q4"></div>
+          </div>
         </div>
-        
-        <div class="task-form hidden" id="taskForm">
-            <h2 style="margin-bottom: 25px; color: #333;" id="formTitle">Add New Task</h2>
-            <div class="form-grid">
-                <div class="form-group form-group-full">
-                    <label>Task Title *</label>
-                    <input type="text" id="taskTitle" placeholder="e.g., Complete sprint planning">
-                </div>
-                <div class="form-group form-group-full">
-                    <label>Description</label>
-                    <textarea id="taskDescription" placeholder="Add details about this task..."></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label>Is this IMPORTANT? (High Impact)</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="importantYes" name="importance" value="true" checked>
-                            <label for="importantYes" style="margin: 0; font-weight: normal;">Yes</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="importantNo" name="importance" value="false">
-                            <label for="importantNo" style="margin: 0; font-weight: normal;">No</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Is this URGENT? (Time-Sensitive)</label>
-                    <div class="radio-group">
-                        <div class="radio-option">
-                            <input type="radio" id="urgentYes" name="urgency" value="true" checked>
-                            <label for="urgentYes" style="margin: 0; font-weight: normal;">Yes</label>
-                        </div>
-                        <div class="radio-option">
-                            <input type="radio" id="urgentNo" name="urgency" value="false">
-                            <label for="urgentNo" style="margin: 0; font-weight: normal;">No</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Due Date</label>
-                    <input type="date" id="taskDueDate">
-                </div>
-                
-                <div class="form-group">
-                    <label>Priority Level</label>
-                    <select id="taskPriority">
-                        <option value="low">Low</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">High</option>
-                    </select>
-                </div>
-            </div>
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button id="btnSubmitTask">➕ Add Task to Matrix</button>
-                <button id="btnCancelEdit" style="background: #6c757d; display: none;">Cancel</button>
-            </div>
-        </div>
-        
-        <div class="matrix-container" id="matrixView">
-            <div class="matrix-title">
-                <h2>Eisenhower Decision Matrix</h2>
-                <p class="matrix-subtitle">Organize tasks by importance and urgency to prioritize effectively</p>
-            </div>
-            
-            <div class="matrix-grid">
-                <div class="quadrant quadrant-1">
-                    <div class="quadrant-header">
-                        <div>
-                            <div class="quadrant-title">🚨 DO FIRST</div>
-                            <div style="font-size: 12px; color: #666; margin-top: 5px;">Urgent & Important</div>
-                        </div>
-                        <span class="quadrant-badge" style="background: #dc3545; color: white;" id="q1-count">0</span>
-                    </div>
-                    <div class="quadrant-tasks" id="quadrant1"></div>
-                </div>
-                
-                <div class="quadrant quadrant-2">
-                    <div class="quadrant-header">
-                        <div>
-                            <div class="quadrant-title">📅 SCHEDULE</div>
-                            <div style="font-size: 12px; color: #666; margin-top: 5px;">Not Urgent & Important</div>
-                        </div>
-                        <span class="quadrant-badge" style="background: #28a745; color: white;" id="q2-count">0</span>
-                    </div>
-                    <div class="quadrant-tasks" id="quadrant2"></div>
-                </div>
-                
-                <div class="quadrant quadrant-3">
-                    <div class="quadrant-header">
-                        <div>
-                            <div class="quadrant-title">⏭️ DO SECOND</div>
-                            <div style="font-size: 12px; color: #666; margin-top: 5px;">Urgent & Not Important</div>
-                        </div>
-                        <span class="quadrant-badge" style="background: #ffc107; color: #333;" id="q3-count">0</span>
-                    </div>
-                    <div class="quadrant-tasks" id="quadrant3"></div>
-                </div>
-                
-                <div class="quadrant quadrant-4">
-                    <div class="quadrant-header">
-                        <div>
-                            <div class="quadrant-title">🗑️ ELIMINATE</div>
-                            <div style="font-size: 12px; color: #666; margin-top: 5px;">Not Urgent & Not Important</div>
-                        </div>
-                        <span class="quadrant-badge" style="background: #6c757d; color: white;" id="q4-count">0</span>
-                    </div>
-                    <div class="quadrant-tasks" id="quadrant4"></div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="list-view" id="listView">
-            <h2 style="margin-bottom: 25px;">All Tasks - List View</h2>
-            <div id="taskList" class="task-list"></div>
-        </div>
-        
-        <div class="list-view" id="backlogView">
-            <div class="backlog-header">
-                <h2>📊 Task Backlog Analysis</h2>
-                <div class="backlog-stats">
-                    <div class="backlog-stat">
-                        <div class="backlog-stat-value" id="totalBacklogDays">0</div>
-                        <div class="backlog-stat-label">Total Days Behind</div>
-                    </div>
-                    <div class="backlog-stat">
-                        <div class="backlog-stat-value" id="backlogTaskCount">0</div>
-                        <div class="backlog-stat-label">Overdue Tasks</div>
-                    </div>
-                </div>
-            </div>
-            <div id="backlogList" class="backlog-list"></div>
-        </div>
+      </div>
     </div>
 
-    <script>
-        let tasks = [];
-        let taskIdCounter = 1;
-        let currentView = 'matrix';
-        let editingTaskId = null;
-        
-        // LOCAL STORAGE: Save and load tasks
-        function saveTasks() {
-            localStorage.setItem('taskTrackerTasks', JSON.stringify(tasks));
-            localStorage.setItem('taskTrackerCounter', taskIdCounter.toString());
+    <!-- CALENDAR -->
+    <div id="calendarView" class="view">
+      <div class="page-header">
+        <div><div class="page-title">Calendar</div><div class="page-sub">All deadlines in one view</div></div>
+        <div class="page-actions"><button class="btn btn-white" onclick="openTaskModal()">+ New Task</button></div>
+      </div>
+      <div class="content">
+        <div class="cal-wrap">
+          <div class="cal-header">
+            <div class="cal-month" id="calMonth"></div>
+            <div class="cal-controls">
+              <button class="btn btn-ghost btn-sm" onclick="moveMonth(-1)">←</button>
+              <button class="btn btn-ghost btn-sm" onclick="goToday()">Today</button>
+              <button class="btn btn-ghost btn-sm" onclick="moveMonth(1)">→</button>
+            </div>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+        </div>
+        <div class="day-tasks-panel" id="dayPanel"></div>
+      </div>
+    </div>
+
+    <!-- SYNOPSIS -->
+    <div id="synopsisView" class="view">
+      <div class="page-header">
+        <div><div class="page-title">Synopsis</div><div class="page-sub">Smart summaries of tasks & meetings</div></div>
+      </div>
+      <div class="content">
+        <div class="view-switcher">
+          <button class="vsw-btn active" data-sv="day" onclick="setSynView('day')">Daily</button>
+          <button class="vsw-btn" data-sv="week" onclick="setSynView('week')">Weekly</button>
+          <button class="vsw-btn" data-sv="month" onclick="setSynView('month')">Monthly</button>
+        </div>
+        <div class="row mb-16">
+          <button class="btn btn-ghost btn-sm" onclick="moveSyn(-1)">←</button>
+          <span id="synTitle" style="font-size:14px; font-weight:700;"></span>
+          <button class="btn btn-ghost btn-sm" onclick="moveSyn(1)">→</button>
+          <button class="btn btn-ghost btn-sm" onclick="synDate=new Date(); renderSynopsis()">Now</button>
+        </div>
+        <div id="synContent"></div>
+      </div>
+    </div>
+
+    <!-- BACKLOG -->
+    <div id="backlogView" class="view">
+      <div class="page-header">
+        <div><div class="page-title">Backlog Analysis</div><div class="page-sub">Deadline drift & delay tracking</div></div>
+      </div>
+      <div class="content">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Days Behind</div>
+            <div class="stat-value danger" id="blDays">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Overdue Tasks</div>
+            <div class="stat-value danger" id="blCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Avg Delay</div>
+            <div class="stat-value" id="blAvg">0<span style="font-size:14px;color:var(--text2)"> days</span></div>
+          </div>
+        </div>
+        <div id="blList"></div>
+      </div>
+    </div>
+
+    <!-- BOOKING -->
+    <div id="bookingView" class="view">
+      <div class="page-header">
+        <div><div class="page-title">Booking System</div><div class="page-sub">Schedule & manage appointments</div></div>
+      </div>
+      <div class="content">
+        <div class="booking-grid">
+          <div>
+            <div class="section-title">Pick a Date & Slot</div>
+            <div class="cal-wrap">
+              <div class="cal-header">
+                <div class="cal-month" id="bkMonth"></div>
+                <div class="cal-controls">
+                  <button class="btn btn-ghost btn-sm" onclick="moveBkMonth(-1)">←</button>
+                  <button class="btn btn-ghost btn-sm" onclick="moveBkMonth(1)">→</button>
+                </div>
+              </div>
+              <div class="cal-grid" id="bkGrid"></div>
+            </div>
+            <div class="time-slots" id="timeSlots"></div>
+          </div>
+          <div>
+            <div class="section-title">Upcoming Bookings</div>
+            <div id="bkList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEAM -->
+    <div id="collabView" class="view">
+      <div class="page-header">
+        <div><div class="page-title">Team</div><div class="page-sub">Who's online & recent activity</div></div>
+      </div>
+      <div class="content">
+        <div class="section-card">
+          <div class="section-title">Online Now</div>
+          <div id="teamList"></div>
+        </div>
+        <div class="section-card">
+          <div class="section-title">Recent Activity</div>
+          <div class="activity-feed" id="activityFeed"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL TASKS -->
+    <div id="listView" class="view">
+      <div class="page-header">
+        <div><div class="page-title">All Tasks</div></div>
+        <div class="page-actions"><button class="btn btn-white" onclick="openTaskModal()">+ New Task</button></div>
+      </div>
+      <div class="content" id="allTasksList"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="settingsView" class="view">
+      <div class="page-header"><div><div class="page-title">Settings</div></div></div>
+      <div class="content">
+        <div class="section-card">
+          <div class="section-title">Your Profile</div>
+          <div class="form-group">
+            <label class="form-label">Display Name</label>
+            <input class="form-input" id="settingName" placeholder="e.g. Rahul">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Your Email (for booking notifications)</label>
+            <input class="form-input" id="settingEmail" type="email" placeholder="you@email.com">
+          </div>
+          <button class="btn btn-white" onclick="saveSettings()">Save Profile</button>
+        </div>
+        <div class="section-card">
+          <div class="section-title">Booking Settings</div>
+          <div class="form-group">
+            <label class="form-label">Slot Duration</label>
+            <select class="form-select" id="settingSlot">
+              <option value="15">15 minutes</option>
+              <option value="30" selected>30 minutes</option>
+              <option value="45">45 minutes</option>
+              <option value="60">60 minutes</option>
+            </select>
+          </div>
+          <button class="btn btn-white" onclick="saveSettings()">Save</button>
+        </div>
+        <div class="section-card">
+          <div class="section-title">Data</div>
+          <div class="row">
+            <button class="btn btn-ghost" onclick="exportData()">📥 Export JSON</button>
+            <button class="btn btn-danger" onclick="clearAll()">🗑️ Clear All</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- TASK MODAL -->
+<div class="modal-bg" id="taskModalBg">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="taskModalTitle">New Task</div>
+      <button class="modal-close" onclick="closeTaskModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Task Title *</label>
+        <input class="form-input" id="fTitle" placeholder="What needs to be done?">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="fDesc" placeholder="Details..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Due Date</label>
+        <input class="form-input" id="fDue" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Important?</label>
+        <div class="radio-group">
+          <label class="radio-label"><input type="radio" name="imp" value="true" checked> Yes</label>
+          <label class="radio-label"><input type="radio" name="imp" value="false"> No</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Urgent?</label>
+        <div class="radio-group">
+          <label class="radio-label"><input type="radio" name="urg" value="true" checked> Yes</label>
+          <label class="radio-label"><input type="radio" name="urg" value="false"> No</label>
+        </div>
+      </div>
+      <button class="btn btn-white" style="width:100%" onclick="saveTask()">Save Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- JOIN SESSION MODAL -->
+<div class="modal-bg" id="joinModalBg">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Join Team Session</div>
+      <button class="modal-close" onclick="closeJoinModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">
+        Enter a shared session ID so your team sees the same data in real-time.
+      </p>
+      <div class="form-group">
+        <label class="form-label">Your Name</label>
+        <input class="form-input" id="jName" placeholder="e.g. Rahul">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Session ID (share this with your team)</label>
+        <div class="row">
+          <input class="form-input" id="jSession" placeholder="e.g. team-alpha">
+          <button class="btn btn-ghost btn-sm" onclick="generateSession()">Generate</button>
+        </div>
+      </div>
+      <button class="btn btn-white" style="width:100%;margin-top:8px;" onclick="joinSession()">Join Session</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="modal-bg" id="bkModalBg">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Confirm Booking</div>
+      <button class="modal-close" onclick="closeBkModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Name *</label>
+        <input class="form-input" id="bkName" placeholder="Your name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email *</label>
+        <input class="form-input" id="bkEmail" type="email" placeholder="you@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Purpose</label>
+        <textarea class="form-textarea" id="bkPurpose" placeholder="What would you like to discuss?"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Selected Slot</label>
+        <input class="form-input" id="bkSlotDisplay" readonly style="opacity:.6">
+      </div>
+      <button class="btn btn-white" style="width:100%" onclick="confirmBooking()">Confirm Booking</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────
+let tasks    = [];
+let bookings = [];
+let activity = [];
+let members  = [];
+let tid      = 1;
+let bid      = 1;
+let editId   = null;
+let calDate  = new Date();
+let bkDate   = new Date();
+let synDate  = new Date();
+let synView  = 'day';
+let bkSlot   = null;
+let session  = null;
+let me       = null;
+let settings = { name:'', email:'', slot: 30 };
+let pollTimer = null;
+
+// ─────────────────────────────────────────
+//  STORAGE: Artifact-native window.storage
+// ─────────────────────────────────────────
+async function push() {
+  // Always save to localStorage as fallback
+  localStorage.setItem('tf_tasks',    JSON.stringify(tasks));
+  localStorage.setItem('tf_bookings', JSON.stringify(bookings));
+  localStorage.setItem('tf_tid',      tid);
+  localStorage.setItem('tf_bid',      bid);
+  
+  setSyncState('syncing');
+  
+  try {
+    // If in shared session, save to shared storage
+    if (session) {
+      const payload = JSON.stringify({ tasks, bookings, tid, bid, updatedAt: Date.now(), updatedBy: me?.name || 'Someone' });
+      await window.storage.set('session:' + session + ':data', payload, true);
+      
+      // Update presence
+      if (me) {
+        const presence = JSON.stringify({ name: me.name, color: me.color, ts: Date.now() });
+        await window.storage.set('session:' + session + ':member:' + me.id, presence, true);
+      }
+    }
+    setSyncState('saved');
+  } catch(e) {
+    setSyncState('saved'); // localStorage still worked
+  }
+  
+  updateBadges();
+}
+
+async function pull() {
+  // Load from localStorage first
+  const t  = localStorage.getItem('tf_tasks');
+  const b  = localStorage.getItem('tf_bookings');
+  const tc = localStorage.getItem('tf_tid');
+  const bc = localStorage.getItem('tf_bid');
+  
+  if (t)  tasks    = JSON.parse(t);
+  if (b)  bookings = JSON.parse(b);
+  if (tc) tid      = parseInt(tc);
+  if (bc) bid      = parseInt(bc);
+  
+  // If in shared session, try to load shared data
+  if (session) {
+    try {
+      const res = await window.storage.get('session:' + session + ':data', true);
+      if (res) {
+        const d = JSON.parse(res.value);
+        tasks    = d.tasks    || tasks;
+        bookings = d.bookings || bookings;
+        tid      = d.tid      || tid;
+        bid      = d.bid      || bid;
+      }
+    } catch(e) { /* use localStorage data */ }
+  }
+  
+  renderAll();
+}
+
+// ─────────────────────────────────────────
+//  SYNC STATE
+// ─────────────────────────────────────────
+function setSyncState(s) {
+  const dot = document.getElementById('syncDot');
+  const lbl = document.getElementById('syncLabel');
+  dot.className = 'sync-dot' + (s === 'syncing' ? ' syncing' : s === 'offline' ? ' offline' : '');
+  lbl.textContent = s === 'syncing' ? 'Saving…' : s === 'offline' ? 'Offline' : 'Saved';
+}
+
+// ─────────────────────────────────────────
+//  SESSION / COLLAB
+// ─────────────────────────────────────────
+const COLORS = ['#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD','#98D8C8'];
+const savedSession = localStorage.getItem('tf_session');
+const savedMe      = localStorage.getItem('tf_me');
+if (savedSession) session = savedSession;
+if (savedMe)      me      = JSON.parse(savedMe);
+
+if (me) {
+  document.getElementById('joinBtn').textContent = 'Session: ' + session;
+  document.getElementById('joinBtn').classList.add('joined');
+  startPolling();
+}
+
+function showJoinModal() {
+  document.getElementById('jName').value    = settings.name || '';
+  document.getElementById('jSession').value = session || '';
+  document.getElementById('joinModalBg').classList.add('open');
+}
+function closeJoinModal() { document.getElementById('joinModalBg').classList.remove('open'); }
+
+function generateSession() {
+  document.getElementById('jSession').value = 'team-' + Math.random().toString(36).slice(2,8);
+}
+
+async function joinSession() {
+  const name = document.getElementById('jName').value.trim();
+  const sid  = document.getElementById('jSession').value.trim();
+  if (!name || !sid) { alert('Fill in name and session ID'); return; }
+  
+  me      = { id: Date.now(), name, color: COLORS[Math.floor(Math.random()*COLORS.length)] };
+  session = sid;
+  
+  localStorage.setItem('tf_session', session);
+  localStorage.setItem('tf_me',      JSON.stringify(me));
+  
+  document.getElementById('joinBtn').textContent = 'Session: ' + session;
+  document.getElementById('joinBtn').classList.add('joined');
+  
+  closeJoinModal();
+  await pull(); // Pull shared data immediately
+  startPolling();
+}
+
+function startPolling() {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(async () => {
+    if (!session) return;
+    try {
+      // Poll for updated data
+      const res = await window.storage.get('session:' + session + ':data', true);
+      if (res) {
+        const d = JSON.parse(res.value);
+        // Only update if someone else changed it
+        if (d.updatedBy && d.updatedBy !== (me?.name || '') && d.updatedAt) {
+          tasks    = d.tasks    || tasks;
+          bookings = d.bookings || bookings;
+          tid      = d.tid      || tid;
+          bid      = d.bid      || bid;
+          localStorage.setItem('tf_tasks',    JSON.stringify(tasks));
+          localStorage.setItem('tf_bookings', JSON.stringify(bookings));
+          renderAll();
+          logActivity(d.updatedBy + ' updated the board');
         }
-        
-        function loadTasks() {
-            const savedTasks = localStorage.getItem('taskTrackerTasks');
-            const savedCounter = localStorage.getItem('taskTrackerCounter');
-            
-            if (savedTasks) {
-                tasks = JSON.parse(savedTasks);
-            }
-            if (savedCounter) {
-                taskIdCounter = parseInt(savedCounter);
-            }
+      }
+      // Poll presence
+      await pollPresence();
+    } catch(e) { /* silent */ }
+  }, 5000);
+}
+
+async function pollPresence() {
+  if (!session) return;
+  try {
+    const keys = await window.storage.list('session:' + session + ':member:', true);
+    const online = [];
+    const now = Date.now();
+    for (const key of (keys.keys || [])) {
+      try {
+        const r = await window.storage.get(key, true);
+        if (r) {
+          const m = JSON.parse(r.value);
+          if (now - m.ts < 30000) online.push(m); // active in last 30s
         }
-        
-        function getQuadrant(task) {
-            const isImportant = task.importance === true || task.importance === 'true';
-            const isUrgent = task.urgency === true || task.urgency === 'true';
-            
-            if (isUrgent && isImportant) return 1;
-            if (!isUrgent && isImportant) return 2;
-            if (isUrgent && !isImportant) return 3;
-            return 4;
-        }
-        
-        function isOverdue(dateString) {
-            if (!dateString) return false;
-            const dueDate = new Date(dateString);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            return dueDate < today;
-        }
-        
-        function getDaysOverdue(dateString) {
-            if (!dateString) return 0;
-            const dueDate = new Date(dateString);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            if (dueDate >= today) return 0;
-            
-            const diffTime = Math.abs(today - dueDate);
-            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        }
-        
-        function calculateBacklogImpact(task) {
-            if (!task.dueDate || !isOverdue(task.dueDate)) return 0;
-            
-            const daysOverdue = getDaysOverdue(task.dueDate);
-            
-            if (task.completed && task.completedAt) {
-                const dueDate = new Date(task.dueDate);
-                const completedDate = new Date(task.completedAt);
-                const delayTime = completedDate - dueDate;
-                return Math.max(0, Math.ceil(delayTime / (1000 * 60 * 60 * 24)));
-            }
-            
-            return daysOverdue;
-        }
-        
-        function formatDate(dateString) {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric' 
-            });
-        }
-        
-        function editTask(id) {
-            const task = tasks.find(t => t.id === id);
-            if (!task) return;
-            
-            editingTaskId = id;
-            
-            document.getElementById('formTitle').textContent = 'Edit Task';
-            document.getElementById('taskTitle').value = task.title;
-            document.getElementById('taskDescription').value = task.description || '';
-            document.getElementById('taskDueDate').value = task.dueDate || '';
-            document.getElementById('taskPriority').value = task.priority;
-            
-            document.querySelector(`input[name="importance"][value="${task.importance}"]`).checked = true;
-            document.querySelector(`input[name="urgency"][value="${task.urgency}"]`).checked = true;
-            
-            document.getElementById('btnSubmitTask').textContent = '💾 Update Task';
-            document.getElementById('btnCancelEdit').style.display = 'inline-block';
-            
-            document.getElementById('taskForm').classList.remove('hidden');
-            document.getElementById('taskForm').scrollIntoView({ behavior: 'smooth' });
-        }
-        
-        function cancelEdit() {
-            editingTaskId = null;
-            document.getElementById('formTitle').textContent = 'Add New Task';
-            document.getElementById('btnSubmitTask').textContent = '➕ Add Task to Matrix';
-            document.getElementById('btnCancelEdit').style.display = 'none';
-            clearForm();
-            document.getElementById('taskForm').classList.add('hidden');
-        }
-        
-        function clearForm() {
-            document.getElementById('taskTitle').value = '';
-            document.getElementById('taskDescription').value = '';
-            document.getElementById('taskDueDate').value = '';
-            document.getElementById('taskPriority').value = 'medium';
-            document.querySelector('input[name="importance"][value="true"]').checked = true;
-            document.querySelector('input[name="urgency"][value="true"]').checked = true;
-        }
-        
-        function addOrUpdateTask() {
-            const title = document.getElementById('taskTitle').value;
-            const description = document.getElementById('taskDescription').value;
-            const dueDate = document.getElementById('taskDueDate').value;
-            const priority = document.getElementById('taskPriority').value;
-            const importance = document.querySelector('input[name="importance"]:checked').value;
-            const urgency = document.querySelector('input[name="urgency"]:checked').value;
-            
-            if (!title.trim()) {
-                alert('Please enter a task title!');
-                return;
-            }
-            
-            let finalPriority = priority;
-            if (dueDate && isOverdue(dueDate)) {
-                finalPriority = 'high';
-            }
-            
-            if (editingTaskId !== null) {
-                const task = tasks.find(t => t.id === editingTaskId);
-                if (task) {
-                    task.title = title;
-                    task.description = description;
-                    task.importance = importance === 'true';
-                    task.urgency = urgency === 'true';
-                    task.priority = finalPriority;
-                    task.dueDate = dueDate;
-                }
-                cancelEdit();
-            } else {
-                const task = {
-                    id: taskIdCounter++,
-                    title: title,
-                    description: description,
-                    importance: importance === 'true',
-                    urgency: urgency === 'true',
-                    priority: finalPriority,
-                    dueDate: dueDate,
-                    completed: false,
-                    createdAt: new Date().toISOString(),
-                    completedAt: null
-                };
-                
-                tasks.push(task);
-                clearForm();
-                document.getElementById('taskForm').classList.add('hidden');
-            }
-            
-            saveTasks();
-            updateDashboard();
-            renderMatrix();
-            renderList();
-            renderBacklog();
-        }
-        
-        function updateDashboard() {
-            const total = tasks.length;
-            const active = tasks.filter(t => !t.completed).length;
-            const completed = tasks.filter(t => t.completed).length;
-            const overdue = tasks.filter(t => !t.completed && t.dueDate && isOverdue(t.dueDate)).length;
-            const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
-            
-            document.getElementById('totalTasks').textContent = total;
-            document.getElementById('activeTasks').textContent = active;
-            document.getElementById('completedTasks').textContent = completed;
-            document.getElementById('overdueTasks').textContent = overdue;
-            document.getElementById('completionRate').textContent = rate + '%';
-        }
-        
-        function renderMatrix() {
-            const quadrants = { 1: [], 2: [], 3: [], 4: [] };
-            
-            tasks.forEach(task => {
-                const q = getQuadrant(task);
-                quadrants[q].push(task);
-            });
-            
-            for (let i = 1; i <= 4; i++) {
-                const container = document.getElementById(`quadrant${i}`);
-                const quadrantTasks = quadrants[i];
-                
-                document.getElementById(`q${i}-count`).textContent = quadrantTasks.length;
-                
-                if (quadrantTasks.length === 0) {
-                    container.innerHTML = '<div style="color: #999; font-size: 13px; text-align: center; padding: 20px;">No tasks in this quadrant</div>';
-                } else {
-                    container.innerHTML = quadrantTasks.map(task => {
-                        let borderColor = '#e9ecef';
-                        if (task.priority === 'high') borderColor = '#dc3545';
-                        if (task.priority === 'medium') borderColor = '#ffc107';
-                        if (task.priority === 'low') borderColor = '#28a745';
-                        
-                        const overdueFlag = (!task.completed && task.dueDate && isOverdue(task.dueDate)) 
-                            ? '<span class="overdue-flag">🚩 OVERDUE</span>' 
-                            : '';
-                        
-                        return `
-                            <div class="matrix-task ${task.completed ? 'completed' : ''}" 
-                                 style="border-left-color: ${borderColor}">
-                                <div class="matrix-task-title ${task.completed ? 'completed' : ''}">${task.title}${overdueFlag}</div>
-                                ${task.description ? `<div style="font-size: 12px; color: #666; margin-top: 5px;">${task.description}</div>` : ''}
-                                <div class="matrix-task-meta">
-                                    ${task.dueDate ? `<span>📅 ${formatDate(task.dueDate)}</span>` : ''}
-                                    <span>🏷️ ${task.priority}</span>
-                                    ${!task.completed && task.dueDate && isOverdue(task.dueDate) ? `<span style="color: #dc3545; font-weight: 600;">${getDaysOverdue(task.dueDate)} days late</span>` : ''}
-                                </div>
-                                <div class="matrix-task-actions">
-                                    <button class="btn-tiny" onclick="toggleComplete(${task.id})">
-                                        ${task.completed ? '↩️ Reopen' : '✓ Done'}
-                                    </button>
-                                    <button class="btn-tiny" onclick="editTask(${task.id})">✏️ Edit</button>
-                                    <button class="btn-tiny" onclick="deleteTask(${task.id})">🗑️ Delete</button>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                }
-            }
-        }
-        
-        function renderList() {
-            const listContainer = document.getElementById('taskList');
-            
-            if (tasks.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="empty-state">
-                        <div style="font-size: 64px;">📭</div>
-                        <h3>No tasks yet</h3>
-                        <p>Click "Add New Task" to get started!</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            listContainer.innerHTML = tasks.map(task => {
-                const quadrant = getQuadrant(task);
-                const quadrantLabels = {
-                    1: '🚨 Do First',
-                    2: '📅 Schedule',
-                    3: '👥 Delegate',
-                    4: '🗑️ Eliminate'
-                };
-                
-                const overdueInfo = (!task.completed && task.dueDate && isOverdue(task.dueDate))
-                    ? `<span class="badge" style="background: #dc3545; color: white;">🚩 ${getDaysOverdue(task.dueDate)} days overdue</span>`
-                    : '';
-                
-                return `
-                    <div class="task-item">
-                        <div class="task-header">
-                            <div class="task-title">${task.title}</div>
-                            <div class="task-badges">
-                                <span class="badge" style="background: #e3f2fd; color: #1976d2;">
-                                    ${quadrantLabels[quadrant]}
-                                </span>
-                                <span class="badge" style="background: #fff3e0; color: #f57c00;">
-                                    ${task.priority}
-                                </span>
-                                ${task.completed ? '<span class="badge" style="background: #e8f5e9; color: #388e3c;">✓ Done</span>' : ''}
-                                ${overdueInfo}
-                            </div>
-                        </div>
-                        ${task.description ? `<div style="color: #666; margin-bottom: 10px;">${task.description}</div>` : ''}
-                        <div style="font-size: 13px; color: #999; margin-bottom: 15px;">
-                            ${task.dueDate ? `📅 Due: ${formatDate(task.dueDate)} • ` : ''}
-                            Important: ${task.importance ? 'Yes' : 'No'} • 
-                            Urgent: ${task.urgency ? 'Yes' : 'No'}
-                        </div>
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <button style="padding: 8px 16px; font-size: 14px;" onclick="toggleComplete(${task.id})">
-                                ${task.completed ? '↩️ Reopen' : '✓ Mark Complete'}
-                            </button>
-                            <button style="padding: 8px 16px; font-size: 14px; background: #28a745;" onclick="editTask(${task.id})">
-                                ✏️ Edit
-                            </button>
-                            <button style="padding: 8px 16px; font-size: 14px; background: #dc3545;" onclick="deleteTask(${task.id})">
-                                🗑️ Delete
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-        
-        function renderBacklog() {
-            const backlogList = document.getElementById('backlogList');
-            
-            const tasksWithDueDate = tasks.filter(t => t.dueDate);
-            
-            const overdueTasks = tasksWithDueDate.filter(t => 
-                (!t.completed && isOverdue(t.dueDate)) ||
-                (t.completed && t.completedAt && new Date(t.completedAt) > new Date(t.dueDate))
-            );
-            
-            overdueTasks.sort((a, b) => {
-                return calculateBacklogImpact(b) - calculateBacklogImpact(a);
-            });
-            
-            const totalBacklogDays = overdueTasks.reduce((sum, task) => {
-                return sum + calculateBacklogImpact(task);
-            }, 0);
-            
-            document.getElementById('totalBacklogDays').textContent = totalBacklogDays;
-            document.getElementById('backlogTaskCount').textContent = overdueTasks.length;
-            
-            if (overdueTasks.length === 0) {
-                backlogList.innerHTML = `
-                    <div class="empty-state">
-                        <div style="font-size: 64px;">🎉</div>
-                        <h3>No Task Backlog!</h3>
-                        <p>All tasks are on schedule. Great work!</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            backlogList.innerHTML = overdueTasks.map(task => {
-                const backlogDays = calculateBacklogImpact(task);
-                const statusText = task.completed 
-                    ? `Completed ${getDaysOverdue(task.dueDate)} days late`
-                    : `Currently ${getDaysOverdue(task.dueDate)} days overdue`;
-                
-                const statusColor = task.completed ? '#ff9800' : '#dc3545';
-                
-                return `
-                    <div class="backlog-item">
-                        <div class="backlog-item-content">
-                            <div class="backlog-item-title">
-                                ${task.completed ? '✅' : '⏰'} ${task.title}
-                            </div>
-                            <div class="backlog-item-meta">
-                                <span>📅 Due: ${formatDate(task.dueDate)}</span>
-                                <span style="color: ${statusColor}; font-weight: 600;">${statusText}</span>
-                                <span>Priority: ${task.priority}</span>
-                                ${task.completed && task.completedAt ? `<span>Completed: ${formatDate(task.completedAt.split('T')[0])}</span>` : ''}
-                            </div>
-                            ${task.description ? `<div style="font-size: 12px; color: #666; margin-top: 8px;">${task.description}</div>` : ''}
-                        </div>
-                        <div class="backlog-impact">
-                            <div class="backlog-impact-value">${backlogDays}</div>
-                            <div class="backlog-impact-label">Days Delayed</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-        
-        function toggleComplete(id) {
-            const task = tasks.find(t => t.id === id);
-            
-            if (task) {
-                task.completed = !task.completed;
-                
-                if (task.completed) {
-                    task.completedAt = new Date().toISOString();
-                } else {
-                    task.completedAt = null;
-                }
-                
-                saveTasks();
-                updateDashboard();
-                renderMatrix();
-                renderList();
-                renderBacklog();
-            }
-        }
-        
-        function deleteTask(id) {
-            if (!confirm('Are you sure you want to delete this task?')) {
-                return;
-            }
-            
-            tasks = tasks.filter(t => t.id !== id);
-            
-            saveTasks();
-            updateDashboard();
-            renderMatrix();
-            renderList();
-            renderBacklog();
-        }
-        
-        function switchView(view) {
-            currentView = view;
-            
-            const matrixView = document.getElementById('matrixView');
-            const listView = document.getElementById('listView');
-            const backlogView = document.getElementById('backlogView');
-            
-            matrixView.style.display = 'none';
-            listView.style.display = 'none';
-            backlogView.style.display = 'none';
-            
-            document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            if (view === 'matrix') {
-                matrixView.style.display = 'block';
-                document.getElementById('btnMatrix').classList.add('active');
-            } else if (view === 'list') {
-                listView.style.display = 'block';
-                document.getElementById('btnList').classList.add('active');
-            } else if (view === 'backlog') {
-                backlogView.style.display = 'block';
-                document.getElementById('btnBacklog').classList.add('active');
-                renderBacklog();
-            }
-        }
-        
-        function toggleForm() {
-            const form = document.getElementById('taskForm');
-            form.classList.toggle('hidden');
-        }
-        
-        // EVENT LISTENERS
-        document.getElementById('btnMatrix').addEventListener('click', () => switchView('matrix'));
-        document.getElementById('btnList').addEventListener('click', () => switchView('list'));
-        document.getElementById('btnBacklog').addEventListener('click', () => switchView('backlog'));
-        document.getElementById('btnAddTask').addEventListener('click', toggleForm);
-        document.getElementById('btnSubmitTask').addEventListener('click', addOrUpdateTask);
-        document.getElementById('btnCancelEdit').addEventListener('click', cancelEdit);
-        
-        // INITIALIZATION
-        loadTasks();
-        updateDashboard();
-        renderMatrix();
-        renderList();
-        renderBacklog();
-    </script>
+      } catch(e) {}
+    }
+    members = online;
+    renderPresence();
+    renderTeam();
+  } catch(e) {}
+}
+
+function renderPresence() {
+  const container = document.getElementById('presenceAvatars');
+  container.innerHTML = members.slice(0,6).map(m => `
+    <div class="avatar" style="background:${m.color}; color:#000;">
+      ${m.name.charAt(0).toUpperCase()}
+      <div class="tooltip">${m.name}</div>
+    </div>
+  `).join('');
+}
+
+function renderTeam() {
+  const container = document.getElementById('teamList');
+  if (members.length === 0) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><p>No one online yet. Share your Session ID to invite teammates.</p></div>';
+    return;
+  }
+  container.innerHTML = members.map(m => `
+    <div class="row" style="margin-bottom:12px;">
+      <div class="avatar" style="background:${m.color}; color:#000; position:static; margin:0; flex-shrink:0;">
+        ${m.name.charAt(0).toUpperCase()}
+      </div>
+      <span style="font-size:14px; font-weight:600;">${m.name}</span>
+      <span class="chip green" style="margin-left:auto;">Online</span>
+    </div>
+  `).join('');
+}
+
+function logActivity(msg) {
+  activity.unshift({ msg, ts: new Date().toLocaleTimeString() });
+  if (activity.length > 20) activity.pop();
+  renderActivity();
+}
+
+function renderActivity() {
+  const feed = document.getElementById('activityFeed');
+  if (activity.length === 0) {
+    feed.innerHTML = '<div style="font-size:13px;color:var(--text3);">No activity yet.</div>';
+    return;
+  }
+  feed.innerHTML = activity.map(a => `
+    <div class="activity-item">${a.msg} <span style="float:right;color:var(--text3);">${a.ts}</span></div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────
+//  UTILS
+// ─────────────────────────────────────────
+function isOverdue(d) {
+  if (!d) return false;
+  const t = new Date(); t.setHours(0,0,0,0);
+  return new Date(d) < t;
+}
+function daysOverdue(d) {
+  if (!d) return 0;
+  const t = new Date(); t.setHours(0,0,0,0);
+  const diff = t - new Date(d);
+  return diff > 0 ? Math.ceil(diff/864e5) : 0;
+}
+function fmtDate(d) {
+  if (!d) return '';
+  return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+function quadrant(t) {
+  if (t.urgency && t.importance)  return 1;
+  if (!t.urgency && t.importance) return 2;
+  if (t.urgency && !t.importance) return 3;
+  return 4;
+}
+
+// ─────────────────────────────────────────
+//  TASK CARD HTML
+// ─────────────────────────────────────────
+function taskCardHTML(task) {
+  const over   = task.dueDate && isOverdue(task.dueDate) && !task.completed;
+  const days   = daysOverdue(task.dueDate);
+  
+  // Drift bar
+  let driftHTML = '';
+  if (task.originalDueDate && task.dueDate !== task.originalDueDate) {
+    const orig    = new Date(task.originalDueDate);
+    const curr    = new Date(task.dueDate);
+    const shifts  = task.dateChanges || 1;
+    const drift   = Math.max(0, Math.ceil((curr - orig)/864e5));
+    const pct     = Math.min(100, (drift / 30) * 100);
+    const cls     = pct < 30 ? 'ok' : pct < 70 ? 'warn' : 'bad';
+    driftHTML = `
+      <div class="drift-wrap">
+        <div class="drift-labels">
+          <span>Original: ${fmtDate(task.originalDueDate)}</span>
+          <span>Current: ${fmtDate(task.dueDate)}</span>
+        </div>
+        <div class="drift-track">
+          <div class="drift-fill ${cls}" style="width:${pct}%"></div>
+        </div>
+        <div class="drift-footer">
+          <span>Drifted ${drift} day${drift!==1?'s':''}</span>
+          <span class="drift-badge shifted">Changed ${shifts}×</span>
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div class="task-card ${task.completed?'completed':''}">
+      <div class="task-row">
+        <div class="task-check ${task.completed?'done':''}" onclick="event.stopPropagation();toggleDone(${task.id})"></div>
+        <div class="task-name ${task.completed?'striked':''}">${task.title}</div>
+      </div>
+      <div class="task-meta">
+        ${task.dueDate ? `<span class="chip ${over?'red':''}">${over?'🚩 ':'📅 '}${fmtDate(task.dueDate)}${over?' ('+days+'d late)':''}</span>` : ''}
+        ${task.importance ? '<span class="chip amber">⭐ Important</span>' : ''}
+        ${task.urgency    ? '<span class="chip">⚡ Urgent</span>'          : ''}
+        ${me ? `<span class="chip" style="color:var(--text3);font-size:10px;">by ${task.createdBy||'—'}</span>` : ''}
+      </div>
+      ${driftHTML}
+      <div class="task-actions-row">
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openTaskModal(${task.id})">✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();delTask(${task.id})">🗑️ Delete</button>
+      </div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────
+//  RENDER ALL
+// ─────────────────────────────────────────
+function renderAll() {
+  updateStats();
+  renderMatrix();
+  renderCalendar();
+  renderBacklog();
+  renderList();
+  renderSynopsis();
+  renderBookingCalendar();
+  renderBookings();
+  updateBadges();
+  renderActivity();
+  renderTeam();
+}
+
+function updateStats() {
+  const tot  = tasks.length;
+  const done = tasks.filter(t=>t.completed).length;
+  const act  = tot - done;
+  const over = tasks.filter(t=>!t.completed&&t.dueDate&&isOverdue(t.dueDate)).length;
+  document.getElementById('sTot').textContent  = tot;
+  document.getElementById('sAct').textContent  = act;
+  document.getElementById('sDone').textContent = done;
+  document.getElementById('sOver').textContent = over;
+}
+
+function updateBadges() {
+  const tot  = tasks.filter(t=>!t.completed).length;
+  const over = tasks.filter(t=>!t.completed&&t.dueDate&&isOverdue(t.dueDate)).length;
+  const bk   = bookings.length;
+  document.getElementById('nb-dash').textContent    = tot;
+  document.getElementById('nb-backlog').textContent = over;
+  document.getElementById('nb-booking').textContent = bk;
+}
+
+function renderMatrix() {
+  const qs = {1:[],2:[],3:[],4:[]};
+  tasks.forEach(t => qs[quadrant(t)].push(t));
+  for (let i=1;i<=4;i++) {
+    document.getElementById('qc'+i).textContent = qs[i].length;
+    document.getElementById('q'+i).innerHTML = qs[i].length
+      ? qs[i].map(taskCardHTML).join('')
+      : '<div class="empty"><div class="empty-icon">📭</div></div>';
+  }
+}
+
+// ─────────────────────────────────────────
+//  CALENDAR
+// ─────────────────────────────────────────
+function renderCalendar() {
+  const y = calDate.getFullYear(), m = calDate.getMonth();
+  document.getElementById('calMonth').textContent = calDate.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  buildCal('calGrid', y, m, (ds) => showDayTasks(ds));
+}
+function buildCal(gridId, y, m, onClick) {
+  const grid = document.getElementById(gridId);
+  const first = new Date(y,m,1).getDay();
+  const days  = new Date(y,m+1,0).getDate();
+  const prev  = new Date(y,m,0).getDate();
+  const today = new Date();
+  
+  grid.innerHTML = ['Su','Mo','Tu','We','Th','Fr','Sa']
+    .map(d=>`<div class="cal-day-hdr">${d}</div>`).join('');
+
+  for (let i=first-1;i>=0;i--)
+    grid.innerHTML += `<div class="cal-cell other-month">${prev-i}</div>`;
+
+  for (let d=1;d<=days;d++) {
+    const date  = new Date(y,m,d);
+    const ds    = date.toISOString().split('T')[0];
+    const dts   = tasks.filter(t=>t.dueDate===ds);
+    const isTod = date.toDateString()===today.toDateString();
+    grid.innerHTML += `
+      <div class="cal-cell ${isTod?'today':''} ${dts.length?'has-task':''}" onclick="(${onClick.toString()})('${ds}')">
+        ${d}${dts.length?'<div class="cal-dot"></div>':''}
+      </div>`;
+  }
+  const tot = first+days;
+  const rem = tot%7===0?0:7-(tot%7);
+  for (let i=1;i<=rem;i++)
+    grid.innerHTML += `<div class="cal-cell other-month">${i}</div>`;
+}
+
+function showDayTasks(ds) {
+  const dts = tasks.filter(t=>t.dueDate===ds);
+  const panel = document.getElementById('dayPanel');
+  panel.innerHTML = dts.length
+    ? `<div class="section-card"><div class="section-title">Tasks for ${fmtDate(ds)}</div>${dts.map(taskCardHTML).join('')}</div>`
+    : '';
+}
+function moveMonth(d) { calDate.setMonth(calDate.getMonth()+d); renderCalendar(); }
+function goToday()    { calDate=new Date(); renderCalendar(); }
+
+// ─────────────────────────────────────────
+//  BACKLOG
+// ─────────────────────────────────────────
+function renderBacklog() {
+  const ov = tasks.filter(t=>t.dueDate&&(!t.completed||
+    (t.completed&&t.completedAt&&new Date(t.completedAt)>new Date(t.dueDate))));
+  const tot = ov.reduce((s,t)=>s+daysOverdue(t.dueDate),0);
+  const avg = ov.length ? Math.round(tot/ov.length) : 0;
+  document.getElementById('blDays').textContent  = tot;
+  document.getElementById('blCount').textContent = ov.length;
+  document.getElementById('blAvg').innerHTML     = avg+'<span style="font-size:14px;color:var(--text2)"> days</span>';
+
+  const list = document.getElementById('blList');
+  if (!ov.length) {
+    list.innerHTML='<div class="empty"><div class="empty-icon">🎉</div><p>No backlog! Everything is on track.</p></div>';
+    return;
+  }
+  ov.sort((a,b)=>daysOverdue(b.dueDate)-daysOverdue(a.dueDate));
+  list.innerHTML = ov.map(t=>`
+    <div class="backlog-card">
+      <div class="backlog-info">
+        <div class="backlog-title">${t.completed?'✅':'⏰'} ${t.title}</div>
+        <div class="backlog-meta">📅 Due: ${fmtDate(t.dueDate)} • ${t.completed?'Completed late':'Currently overdue'}</div>
+        ${t.description?`<div class="backlog-meta" style="margin-top:4px;">${t.description}</div>`:''}
+      </div>
+      <div class="backlog-impact">
+        <div class="impact-num">${daysOverdue(t.dueDate)}</div>
+        <div class="impact-lbl">days late</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────
+//  SYNOPSIS
+// ─────────────────────────────────────────
+function setSynView(v) {
+  synView = v;
+  document.querySelectorAll('[data-sv]').forEach(b=>b.classList.toggle('active',b.dataset.sv===v));
+  renderSynopsis();
+}
+function moveSyn(d) {
+  if (synView==='day')   synDate.setDate(synDate.getDate()+d);
+  if (synView==='week')  synDate.setDate(synDate.getDate()+d*7);
+  if (synView==='month') synDate.setMonth(synDate.getMonth()+d);
+  renderSynopsis();
+}
+function renderSynopsis() {
+  let title='', cards=[];
+  if (synView==='day') {
+    const ds = synDate.toISOString().split('T')[0];
+    title = fmtDate(ds);
+    const dt = tasks.filter(t=>t.dueDate===ds);
+    const db = bookings.filter(b=>b.date===ds);
+    cards.push(makeSynCard('Daily View', ds, dt, db));
+  } else if (synView==='week') {
+    const ws = new Date(synDate); ws.setDate(ws.getDate()-ws.getDay());
+    const we = new Date(ws); we.setDate(we.getDate()+6);
+    title = fmtDate(ws.toISOString().split('T')[0]) + ' – ' + fmtDate(we.toISOString().split('T')[0]);
+    for (let i=0;i<7;i++) {
+      const d2 = new Date(ws); d2.setDate(d2.getDate()+i);
+      const ds2 = d2.toISOString().split('T')[0];
+      const dt = tasks.filter(t=>t.dueDate===ds2);
+      const db = bookings.filter(b=>b.date===ds2);
+      if (dt.length||db.length) cards.push(makeSynCard(d2.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'}), ds2, dt, db));
+    }
+  } else {
+    const y=synDate.getFullYear(), m=synDate.getMonth();
+    title = synDate.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    const dt = tasks.filter(t=>{ if(!t.dueDate)return false; const d=new Date(t.dueDate); return d.getFullYear()===y&&d.getMonth()===m; });
+    const db = bookings.filter(b=>{ const d=new Date(b.date); return d.getFullYear()===y&&d.getMonth()===m; });
+    cards.push(makeSynCard('Monthly Overview', null, dt, db));
+  }
+  document.getElementById('synTitle').textContent = title;
+  document.getElementById('synContent').innerHTML = cards.length
+    ? cards.join('')
+    : '<div class="empty"><div class="empty-icon">📭</div><p>No activity for this period.</p></div>';
+}
+function makeSynCard(heading, ds, dt, db) {
+  const done = dt.filter(t=>t.completed).length;
+  const over = dt.filter(t=>!t.completed&&t.dueDate&&isOverdue(t.dueDate)).length;
+  const summary = `${dt.length} task${dt.length!==1?'s':''} and ${db.length} meeting${db.length!==1?'s':''}.`
+    + (done?` ${done} completed.`:'')
+    + (over?` ⚠️ ${over} overdue.`:'');
+  return `
+    <div class="synopsis-card">
+      <div class="synopsis-date">${heading}</div>
+      ${dt.length?`<div class="synopsis-section-label" style="margin-bottom:8px;">📋 Tasks (${dt.length})</div>
+        ${dt.map(t=>`<div class="synopsis-item">${t.completed?'✅':'📌'} ${t.title} ${t.dueDate?'<span style="color:var(--text3);font-size:11px;">• '+fmtDate(t.dueDate)+'</span>':''}</div>`).join('')}`:''}
+      ${db.length?`<div class="synopsis-section-label" style="margin:12px 0 8px;">🔖 Meetings (${db.length})</div>
+        ${db.map(b=>`<div class="synopsis-item">📅 ${b.time} – ${b.name}<br><span style="color:var(--text3);font-size:11px;">${b.purpose||''}</span></div>`).join('')}`:''}
+      <div style="margin-top:14px;"><div class="synopsis-section-label" style="margin-bottom:6px;">Summary</div>
+        <div class="synopsis-summary">${summary}</div></div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────
+//  BOOKING
+// ─────────────────────────────────────────
+function renderBookingCalendar() {
+  const y=bkDate.getFullYear(), m=bkDate.getMonth();
+  document.getElementById('bkMonth').textContent = bkDate.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  buildCal('bkGrid', y, m, (ds)=>selectBkDate(ds));
+}
+function moveBkMonth(d) { bkDate.setMonth(bkDate.getMonth()+d); renderBookingCalendar(); }
+function selectBkDate(ds) {
+  const slots = genSlots();
+  const booked = bookings.filter(b=>b.date===ds).map(b=>b.time);
+  const today = new Date(); today.setHours(0,0,0,0);
+  if (new Date(ds)<today) return;
+  document.getElementById('timeSlots').innerHTML = slots.map(s=>`
+    <div class="slot ${booked.includes(s)?'booked':''}" onclick="${booked.includes(s)?'':'openBkModal(\''+ds+'\',\''+s+'\')'}">${s}</div>
+  `).join('');
+}
+function genSlots() {
+  const dur = parseInt(settings.slot)||30;
+  const out=[];
+  for (let h=9;h<17;h++)
+    for (let mn=0;mn<60;mn+=dur)
+      out.push(h.toString().padStart(2,'0')+':'+mn.toString().padStart(2,'0'));
+  return out;
+}
+function openBkModal(ds,slot) {
+  bkSlot={date:ds,time:slot};
+  document.getElementById('bkSlotDisplay').value = fmtDate(ds)+' at '+slot;
+  document.getElementById('bkModalBg').classList.add('open');
+}
+function closeBkModal() { document.getElementById('bkModalBg').classList.remove('open'); }
+async function confirmBooking() {
+  const name    = document.getElementById('bkName').value.trim();
+  const email   = document.getElementById('bkEmail').value.trim();
+  const purpose = document.getElementById('bkPurpose').value.trim();
+  if (!name||!email) { alert('Fill in name and email'); return; }
+  bookings.push({ id:bid++, ...bkSlot, name, email, purpose, createdAt:new Date().toISOString() });
+  logActivity(name+' booked a slot on '+fmtDate(bkSlot.date)+' at '+bkSlot.time);
+  await push();
+  renderBookings(); renderBookingCalendar(); closeBkModal();
+  document.getElementById('bkName').value='';
+  document.getElementById('bkEmail').value='';
+  document.getElementById('bkPurpose').value='';
+}
+function renderBookings() {
+  const now = new Date();
+  const upcoming = bookings.filter(b=>new Date(b.date+'T'+b.time)>=now)
+    .sort((a,b)=>new Date(a.date+'T'+a.time)-new Date(b.date+'T'+b.time));
+  document.getElementById('bkList').innerHTML = upcoming.length
+    ? upcoming.map(b=>`
+        <div class="booking-card">
+          <div class="booking-name">${b.name}</div>
+          <div class="booking-detail">📅 ${fmtDate(b.date)} at ${b.time}</div>
+          <div class="booking-detail">📧 ${b.email}</div>
+          ${b.purpose?`<div class="booking-detail">💬 ${b.purpose}</div>`:''}
+          <div style="margin-top:8px;">
+            <button class="btn btn-danger btn-sm" onclick="delBooking(${b.id})">Cancel</button>
+          </div>
+        </div>`).join('')
+    : '<div class="empty"><div class="empty-icon">📅</div><p>No upcoming bookings.</p></div>';
+}
+async function delBooking(id) {
+  bookings = bookings.filter(b=>b.id!==id);
+  await push(); renderBookings();
+}
+
+// ─────────────────────────────────────────
+//  LIST
+// ─────────────────────────────────────────
+function renderList() {
+  document.getElementById('allTasksList').innerHTML = tasks.length
+    ? tasks.map(taskCardHTML).join('')
+    : '<div class="empty"><div class="empty-icon">📝</div><p>No tasks yet. Create one!</p></div>';
+}
+
+// ─────────────────────────────────────────
+//  TASK CRUD
+// ─────────────────────────────────────────
+function openTaskModal(id=null) {
+  editId = id;
+  const t = id ? tasks.find(t=>t.id===id) : null;
+  document.getElementById('taskModalTitle').textContent = t ? 'Edit Task' : 'New Task';
+  document.getElementById('fTitle').value = t?.title||'';
+  document.getElementById('fDesc').value  = t?.description||'';
+  document.getElementById('fDue').value   = t?.dueDate||'';
+  document.querySelector(`input[name="imp"][value="${t?.importance!==undefined?t.importance:true}"]`).checked=true;
+  document.querySelector(`input[name="urg"][value="${t?.urgency!==undefined?t.urgency:true}"]`).checked=true;
+  document.getElementById('taskModalBg').classList.add('open');
+}
+function closeTaskModal() { document.getElementById('taskModalBg').classList.remove('open'); editId=null; }
+
+async function saveTask() {
+  const title = document.getElementById('fTitle').value.trim();
+  if (!title) { alert('Task title required'); return; }
+  const due = document.getElementById('fDue').value;
+  const imp = document.querySelector('input[name="imp"]:checked').value==='true';
+  const urg = document.querySelector('input[name="urg"]:checked').value==='true';
+
+  if (editId) {
+    const task = tasks.find(t=>t.id===editId);
+    // Track date changes for drift bar
+    if (due && task.dueDate && due!==task.dueDate) {
+      if (!task.originalDueDate) task.originalDueDate = task.dueDate;
+      task.dateChanges = (task.dateChanges||0)+1;
+    }
+    task.title       = title;
+    task.description = document.getElementById('fDesc').value;
+    task.dueDate     = due;
+    task.importance  = imp;
+    task.urgency     = urg;
+    logActivity((me?.name||'Someone')+' edited "'+title+'"');
+  } else {
+    tasks.push({
+      id: tid++, title,
+      description: document.getElementById('fDesc').value,
+      dueDate: due, originalDueDate: due,
+      importance: imp, urgency: urg,
+      completed: false, dateChanges: 0,
+      createdBy: me?.name||'',
+      createdAt: new Date().toISOString()
+    });
+    logActivity((me?.name||'Someone')+' added "'+title+'"');
+  }
+  await push();
+  renderAll();
+  closeTaskModal();
+}
+
+async function toggleDone(id) {
+  const task = tasks.find(t=>t.id===id);
+  task.completed  = !task.completed;
+  task.completedAt= task.completed?new Date().toISOString():null;
+  logActivity((me?.name||'Someone')+' marked "'+task.title+'" '+(task.completed?'done':'incomplete'));
+  await push();
+  renderAll();
+}
+
+async function delTask(id) {
+  if (!confirm('Delete this task?')) return;
+  const task = tasks.find(t=>t.id===id);
+  logActivity((me?.name||'Someone')+' deleted "'+task.title+'"');
+  tasks = tasks.filter(t=>t.id!==id);
+  await push();
+  renderAll();
+}
+
+// ─────────────────────────────────────────
+//  SETTINGS
+// ─────────────────────────────────────────
+function loadSettings() {
+  const s = localStorage.getItem('tf_settings');
+  if (s) settings=JSON.parse(s);
+  document.getElementById('settingName').value  = settings.name||'';
+  document.getElementById('settingEmail').value = settings.email||'';
+  document.getElementById('settingSlot').value  = settings.slot||30;
+}
+function saveSettings() {
+  settings.name  = document.getElementById('settingName').value.trim();
+  settings.email = document.getElementById('settingEmail').value.trim();
+  settings.slot  = parseInt(document.getElementById('settingSlot').value);
+  localStorage.setItem('tf_settings', JSON.stringify(settings));
+  alert('Settings saved!');
+}
+function exportData() {
+  const blob = new Blob([JSON.stringify({tasks,bookings},null,2)],{type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download='taskflow-'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();
+}
+async function clearAll() {
+  if (!confirm('Delete ALL tasks and bookings?')) return;
+  tasks=[]; bookings=[]; tid=1; bid=1;
+  await push(); renderAll(); alert('Cleared!');
+}
+
+// ─────────────────────────────────────────
+//  NAVIGATION
+// ─────────────────────────────────────────
+function go(v) {
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById(v+'View').classList.add('active');
+  document.querySelector(`[data-v="${v}"]`).classList.add('active');
+  if (v==='synopsis') renderSynopsis();
+  if (v==='collab')   { renderTeam(); renderActivity(); }
+}
+
+// ─────────────────────────────────────────
+//  BOOT
+// ─────────────────────────────────────────
+loadSettings();
+pull();
+</script>
 </body>
 </html>
