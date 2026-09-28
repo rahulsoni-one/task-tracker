@@ -985,15 +985,30 @@ function initFirebase(cfg) {
   }
 }
 
+// Accepts a clean JSON object OR the whole snippet Firebase shows you
+// (imports, comments, `const firebaseConfig = {...}`, initializeApp, etc.).
+// It just hunts for the known config fields and ignores everything else.
+function extractFirebaseConfig(raw) {
+  const keys = ['apiKey','authDomain','databaseURL','projectId','storageBucket','messagingSenderId','appId','measurementId'];
+  const cfg = {};
+  keys.forEach(k => {
+    const m = raw.match(new RegExp('["\']?' + k + '["\']?\\s*:\\s*(["\'])(.*?)\\1'));
+    if (m) cfg[k] = m[2];
+  });
+  if (!cfg.apiKey || !cfg.projectId) throw new Error('missing fields');
+  return cfg;
+}
+
 function connectFirebase() {
   const raw = document.getElementById('fbConfigInput').value.trim();
   try {
-    const cfg = JSON.parse(raw);
+    const cfg = extractFirebaseConfig(raw);
+    document.getElementById('fbConfigInput').value = JSON.stringify(cfg, null, 2);   // show the cleaned version
     localStorage.setItem('tf_firebase_config', JSON.stringify(cfg));
     const ok = initFirebase(cfg);
     alert(ok ? 'Firebase connected! Your data now saves to the cloud permanently.' : 'Could not connect — double check the config object.');
   } catch(e) {
-    alert('That doesn\'t look like valid JSON. Paste the exact firebaseConfig object from your Firebase console.');
+    alert('Couldn\'t find your Firebase keys in that text. Paste the firebaseConfig block from your Firebase console (it needs at least apiKey and projectId).');
   }
 }
 
