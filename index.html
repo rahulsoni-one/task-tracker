@@ -296,6 +296,14 @@
   .cal-cell.today { background: var(--accent); color: #000; font-weight: 700; }
   .cal-cell.has-task { border-color: var(--blue); }
   .cal-cell.other-month { opacity: .3; }
+  .cal-cell:active { transform: scale(0.92); }
+  .cal-cell.selected {
+    background: #0D2238; color: var(--blue); font-weight: 700;
+    border-color: var(--blue); box-shadow: 0 0 0 2px var(--blue);
+  }
+  .cal-cell.today.selected { background: var(--accent); color: #000; }
+  .slots-heading { grid-column: 1 / -1; font-size: 12px; color: var(--text2); margin-bottom: 2px; }
+  .slots-heading b { color: var(--text); }
   .cal-dot {
     width: 4px; height: 4px; border-radius: 50%;
     background: var(--blue); position: absolute; bottom: 5px;
@@ -815,6 +823,7 @@ let bkDate   = new Date();
 let synDate  = new Date();
 let synView  = 'day';
 let bkSlot   = null;
+let bkSelectedDate = null;
 let session  = null;
 let me       = null;
 let settings = { name:'', email:'', slot: 30 };
@@ -1188,7 +1197,7 @@ function renderCalendar() {
   document.getElementById('calMonth').textContent = calDate.toLocaleDateString('en-US',{month:'long',year:'numeric'});
   buildCal('calGrid', y, m, 'showDayTasks');
 }
-function buildCal(gridId, y, m, fnName) {
+function buildCal(gridId, y, m, fnName, selectedDs) {
   const grid = document.getElementById(gridId);
   const first = new Date(y,m,1).getDay();
   const days  = new Date(y,m+1,0).getDate();
@@ -1203,7 +1212,7 @@ function buildCal(gridId, y, m, fnName) {
     const ds   = toDateStr(date);
     const dts  = tasks.filter(t=>t.dueDate===ds);
     const isTod= date.toDateString()===today.toDateString();
-    grid.innerHTML += `<div class="cal-cell ${isTod?'today':''} ${dts.length?'has-task':''}" onclick="${fnName}('${ds}')">${d}${dts.length?'<div class="cal-dot"></div>':''}</div>`;
+    grid.innerHTML += `<div class="cal-cell ${isTod?'today':''} ${dts.length?'has-task':''} ${selectedDs===ds?'selected':''}" onclick="${fnName}('${ds}')">${d}${dts.length?'<div class="cal-dot"></div>':''}</div>`;
   }
   const tot=first+days, rem = tot%7===0?0:7-(tot%7);
   for (let i=1;i<=rem;i++) grid.innerHTML += `<div class="cal-cell other-month">${i}</div>`;
@@ -1301,15 +1310,17 @@ function makeSynCard(heading, dt, db_) {
 function renderBookingCalendar() {
   const y=bkDate.getFullYear(), m=bkDate.getMonth();
   document.getElementById('bkMonth').textContent = bkDate.toLocaleDateString('en-US',{month:'long',year:'numeric'});
-  buildCal('bkGrid', y, m, 'selectBkDate');
+  buildCal('bkGrid', y, m, 'selectBkDate', bkSelectedDate);
 }
 function moveBkMonth(d) { bkDate.setMonth(bkDate.getMonth()+d); renderBookingCalendar(); }
 function selectBkDate(ds) {
   const today = new Date(); today.setHours(0,0,0,0);
   if (parseLocalDate(ds) < today) return;
+  bkSelectedDate = ds;
+  renderBookingCalendar();   // repaint right away so the clicked date lights up instantly
   const slots  = genSlots();
   const booked = bookings.filter(b=>b.date===ds).map(b=>b.time);
-  document.getElementById('timeSlots').innerHTML = slots.map(s=>`
+  document.getElementById('timeSlots').innerHTML = `<div class="slots-heading">Available times for <b>${fmtDate(ds)}</b></div>` + slots.map(s=>`
     <div class="slot ${booked.includes(s)?'booked':''}" onclick="${booked.includes(s)?'':`openBkModal('${ds}','${s}')`}">${s}</div>`).join('');
 }
 function genSlots() {
@@ -1332,6 +1343,7 @@ async function confirmBooking() {
   logActivity(name+' booked a slot on '+fmtDate(bkSlot.date)+' at '+bkSlot.time);
   await push(name);
   renderBookings(); renderBookingCalendar(); closeBkModal();
+  if (bkSelectedDate) selectBkDate(bkSelectedDate);   // refresh slots so the booked one greys out
   document.getElementById('bkName').value='';
   document.getElementById('bkEmail').value='';
   document.getElementById('bkPurpose').value='';
