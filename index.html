@@ -17,266 +17,125 @@
     --text2:     #888888;
     --text3:     #555555;
     --accent:    #FFFFFF;
-    --accent-dim:#CCCCCC;
     --red:       #FF4444;
     --green:     #00C896;
     --amber:     #FFB800;
     --blue:      #4D9EFF;
-    --purple:    #9B6FFF;
     --shadow:    0 8px 32px rgba(0,0,0,0.6);
     --radius:    10px;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    background: var(--bg); color: var(--text);
+    height: 100vh; overflow: hidden;
+    display: flex; flex-direction: column;
   }
-
   .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 24px;
-    height: 56px;
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; height: 56px; background: var(--bg2);
+    border-bottom: 1px solid var(--border); flex-shrink: 0;
   }
-  .logo {
-    display: flex; align-items: center; gap: 10px;
-    font-size: 16px; font-weight: 700; letter-spacing: -0.3px;
+  .topbar-left { display:flex; align-items:center; }
+  .hamburger-btn {
+    display: none; background: none; border: none; color: var(--text);
+    font-size: 20px; cursor: pointer; padding: 4px 8px; margin-right: 8px;
   }
-  .logo-icon {
-    width: 28px; height: 28px; background: var(--accent);
-    border-radius: 6px; display: flex; align-items: center;
-    justify-content: center; font-size: 14px;
-  }
-  .collab-bar {
-    display: flex; align-items: center; gap: 12px;
-  }
-  .presence-avatars {
-    display: flex; align-items: center;
-  }
+  .logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
+  .logo-icon { width: 28px; height: 28px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .collab-bar { display: flex; align-items: center; gap: 12px; }
+  .presence-avatars { display: flex; align-items: center; }
   .avatar {
-    width: 28px; height: 28px; border-radius: 50%;
-    border: 2px solid var(--bg2);
+    width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--bg2);
     display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 700;
-    margin-left: -6px; cursor: default;
-    position: relative;
+    font-size: 11px; font-weight: 700; margin-left: -6px; position: relative;
   }
   .avatar:first-child { margin-left: 0; }
   .avatar .tooltip {
-    display: none; position: absolute; bottom: -28px; left: 50%;
-    transform: translateX(-50%);
-    background: var(--bg4); border: 1px solid var(--border2);
-    color: var(--text); font-size: 11px; padding: 3px 8px;
-    border-radius: 4px; white-space: nowrap; z-index: 99;
+    display: none; position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%);
+    background: var(--bg4); border: 1px solid var(--border2); color: var(--text);
+    font-size: 11px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; z-index: 99;
   }
   .avatar:hover .tooltip { display: block; }
-
-  .sync-status {
-    font-size: 12px; color: var(--text2);
-    display: flex; align-items: center; gap: 6px;
-  }
-  .sync-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--green); animation: pulse 2s infinite;
-  }
+  .sync-status { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 6px; }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
   .sync-dot.syncing { background: var(--amber); animation: none; }
   .sync-dot.offline { background: var(--red); animation: none; }
   .sync-dot.local { background: var(--blue); animation: none; }
-  @keyframes pulse {
-    0%,100% { opacity:1; } 50% { opacity:0.3; }
-  }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+  .join-btn { background: var(--accent); color: #000; border: none; border-radius: 6px; padding: 6px 14px; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .join-btn.joined { background: var(--bg4); color: var(--text2); border: 1px solid var(--border2); }
 
-  .join-btn {
-    background: var(--accent); color: #000;
-    border: none; border-radius: 6px;
-    padding: 6px 14px; font-size: 12px; font-weight: 700;
-    cursor: pointer; transition: opacity .2s;
-  }
-  .join-btn:hover { opacity: .85; }
-  .join-btn.joined {
-    background: var(--bg4); color: var(--text2); border: 1px solid var(--border2);
-  }
+  .app { display: flex; flex: 1; overflow: hidden; position: relative; }
 
-  .app {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-  }
+  .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 900; }
+  .sidebar-backdrop.open { display: block; }
 
   .sidebar {
-    width: 220px; flex-shrink: 0;
-    background: var(--bg2);
+    width: 220px; flex-shrink: 0; background: var(--bg2);
     border-right: 1px solid var(--border);
-    display: flex; flex-direction: column;
-    padding: 16px 8px;
-    overflow-y: auto;
+    display: flex; flex-direction: column; padding: 16px 8px; overflow-y: auto;
   }
-  .nav-section-label {
-    font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
-    color: var(--text3); padding: 6px 12px 4px;
-    text-transform: uppercase;
-  }
-  .nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 12px; border-radius: 8px;
-    cursor: pointer; transition: background .15s;
-    font-size: 13px; color: var(--text2);
-    margin-bottom: 1px;
-  }
+  .nav-section-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; color: var(--text3); padding: 6px 12px 4px; text-transform: uppercase; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text2); margin-bottom: 1px; }
   .nav-item:hover { background: var(--bg3); color: var(--text); }
   .nav-item.active { background: var(--accent); color: #000; font-weight: 600; }
   .nav-item.active .nav-badge { background: rgba(0,0,0,0.15); color: #000; }
   .nav-icon { font-size: 16px; width: 20px; text-align: center; }
-  .nav-badge {
-    margin-left: auto; background: var(--bg4);
-    color: var(--text2); border-radius: 99px;
-    padding: 1px 7px; font-size: 11px; font-weight: 600;
-  }
-  .sidebar-bottom {
-    margin-top: auto; padding-top: 12px;
-    border-top: 1px solid var(--border);
-  }
+  .nav-badge { margin-left: auto; background: var(--bg4); color: var(--text2); border-radius: 99px; padding: 1px 7px; font-size: 11px; font-weight: 600; }
+  .sidebar-bottom { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border); }
 
-  .main {
-    flex: 1; overflow-y: auto;
-    background: var(--bg);
-  }
-  .page-header {
-    padding: 28px 32px 0;
-    display: flex; justify-content: space-between; align-items: flex-start;
-  }
+  .main { flex: 1; overflow-y: auto; background: var(--bg); }
+  .page-header { padding: 28px 32px 0; display: flex; justify-content: space-between; align-items: flex-start; }
   .page-title { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
   .page-sub { color: var(--text2); font-size: 13px; margin-top: 4px; }
   .page-actions { display: flex; gap: 8px; }
   .content { padding: 24px 32px; }
 
-  .btn {
-    border: none; border-radius: 8px; cursor: pointer;
-    font-size: 13px; font-weight: 600;
-    padding: 8px 16px; transition: all .2s;
-    display: inline-flex; align-items: center; gap: 6px;
-  }
+  .btn { border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; padding: 8px 16px; display: inline-flex; align-items: center; gap: 6px; }
   .btn-white { background: var(--accent); color: #000; }
-  .btn-white:hover { opacity: .88; }
-  .btn-ghost {
-    background: var(--bg3); color: var(--text);
-    border: 1px solid var(--border2);
-  }
-  .btn-ghost:hover { background: var(--bg4); }
+  .btn-ghost { background: var(--bg3); color: var(--text); border: 1px solid var(--border2); }
   .btn-danger { background: #2A0A0A; color: var(--red); border: 1px solid #3A1010; }
-  .btn-danger:hover { background: #3A1010; }
   .btn-sm { padding: 5px 10px; font-size: 11px; border-radius: 6px; }
 
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
-    gap: 14px; margin-bottom: 24px;
-  }
-  .stat-card {
-    background: var(--bg2); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 20px;
-  }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 14px; margin-bottom: 24px; }
+  .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
   .stat-label { font-size: 12px; color: var(--text2); margin-bottom: 8px; }
   .stat-value { font-size: 36px; font-weight: 700; line-height: 1; }
   .stat-value.danger { color: var(--red); }
   .stat-value.success { color: var(--green); }
 
-  .matrix-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-  }
-  @media (max-width: 700px) { .matrix-grid { grid-template-columns: 1fr; } }
+  .matrix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
-  .quadrant {
-    background: var(--bg2); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 16px; min-height: 280px;
-  }
-  .q-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 14px; padding-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-  }
+  .quadrant { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; min-height: 280px; }
+  .q-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
   .q-title { font-size: 13px; font-weight: 700; }
-  .q-count {
-    background: var(--bg4); color: var(--text2);
-    border-radius: 99px; padding: 2px 8px; font-size: 11px; font-weight: 700;
-  }
+  .q-count { background: var(--bg4); color: var(--text2); border-radius: 99px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
 
-  .task-card {
-    background: var(--bg3); border: 1px solid var(--border);
-    border-radius: 8px; padding: 12px; margin-bottom: 8px;
-    transition: all .2s;
-  }
-  .task-card:hover { border-color: var(--border2); background: var(--bg4); }
+  .task-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; }
   .task-card.completed { opacity: .45; }
-
-  .task-row {
-    display: flex; align-items: flex-start; gap: 10px;
-  }
-  .task-check {
-    width: 16px; height: 16px; border-radius: 4px;
-    border: 2px solid var(--border2); flex-shrink: 0; margin-top: 2px;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: all .2s;
-  }
+  .task-row { display: flex; align-items: flex-start; gap: 10px; }
+  .task-check { width: 16px; height: 16px; border-radius: 4px; border: 2px solid var(--border2); flex-shrink: 0; margin-top: 2px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   .task-check.done { background: var(--green); border-color: var(--green); }
   .task-check.done::after { content:"✓"; color:#000; font-size:10px; font-weight:900; }
-  .task-name { font-size: 13px; font-weight: 500; flex: 1; line-height: 1.4; }
+  .task-name { font-size: 13px; font-weight: 500; flex: 1; line-height: 1.4; word-break: break-word; }
   .task-name.striked { text-decoration: line-through; color: var(--text2); }
-
-  .task-meta {
-    display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;
-    align-items: center;
-  }
-  .chip {
-    font-size: 11px; padding: 2px 8px; border-radius: 99px;
-    background: var(--bg4); color: var(--text2); border: 1px solid var(--border);
-  }
+  .task-meta { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
+  .chip { font-size: 10px; padding: 2px 7px; border-radius: 99px; background: var(--bg4); color: var(--text2); border: 1px solid var(--border); }
   .chip.red { background: #1A0505; color: var(--red); border-color: #2A0A0A; }
-  .chip.green { background: #031A12; color: var(--green); border-color: #0A2A20; }
   .chip.amber { background: #1A1000; color: var(--amber); border-color: #2A1A00; }
   .chip.blue { background: #05131F; color: var(--blue); border-color: #0A2540; }
-
-  .task-actions-row {
-    display: flex; gap: 6px; margin-top: 10px;
-  }
+  .task-actions-row { display: flex; gap: 6px; margin-top: 10px; }
 
   .drift-wrap { margin-top: 10px; }
-  .drift-labels {
-    display: flex; justify-content: space-between;
-    font-size: 10px; color: var(--text3); margin-bottom: 4px;
-  }
-  .drift-track {
-    height: 5px; background: var(--bg); border-radius: 99px;
-    overflow: hidden;
-  }
-  .drift-fill {
-    height: 100%; border-radius: 99px;
-    transition: width .4s;
-  }
+  .drift-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--text3); margin-bottom: 4px; }
+  .drift-track { height: 5px; background: var(--bg); border-radius: 99px; overflow: hidden; }
+  .drift-fill { height: 100%; border-radius: 99px; }
   .drift-fill.ok   { background: var(--green); }
   .drift-fill.warn { background: var(--amber); }
   .drift-fill.bad  { background: var(--red); }
-  .drift-footer {
-    display: flex; justify-content: space-between;
-    margin-top: 4px; font-size: 10px; color: var(--text3);
-  }
-  .drift-badge {
-    background: var(--bg4); border: 1px solid var(--border);
-    border-radius: 99px; padding: 1px 7px;
-    font-size: 10px; font-weight: 700;
-  }
+  .drift-footer { display: flex; justify-content: space-between; margin-top: 4px; font-size: 10px; color: var(--text3); }
+  .drift-badge { background: var(--bg4); border: 1px solid var(--border); border-radius: 99px; padding: 1px 7px; font-size: 10px; font-weight: 700; }
   .drift-badge.shifted { color: var(--red); border-color: #2A0A0A; background: #1A0505; }
 
   .cal-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
@@ -285,112 +144,58 @@
   .cal-controls { display: flex; gap: 8px; }
   .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
   .cal-day-hdr { text-align: center; font-size: 11px; font-weight: 700; color: var(--text3); padding: 8px; }
-  .cal-cell {
-    aspect-ratio: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    border-radius: 8px; font-size: 13px; cursor: pointer;
-    background: var(--bg3); border: 1px solid transparent;
-    position: relative; transition: all .15s;
-  }
-  .cal-cell:hover { background: var(--bg4); border-color: var(--border); }
+  .cal-cell { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; font-size: 13px; cursor: pointer; background: var(--bg3); border: 1px solid transparent; position: relative; }
+  .cal-cell:active { transform: scale(0.92); }
   .cal-cell.today { background: var(--accent); color: #000; font-weight: 700; }
   .cal-cell.has-task { border-color: var(--blue); }
   .cal-cell.other-month { opacity: .3; }
-  .cal-cell:active { transform: scale(0.92); }
-  .cal-cell.selected {
-    background: #0D2238; color: var(--blue); font-weight: 700;
-    border-color: var(--blue); box-shadow: 0 0 0 2px var(--blue);
-  }
+  .cal-cell.selected { background: #0D2238; color: var(--blue); font-weight: 700; border-color: var(--blue); box-shadow: 0 0 0 2px var(--blue); }
   .cal-cell.today.selected { background: var(--accent); color: #000; }
-  .slots-heading { grid-column: 1 / -1; font-size: 12px; color: var(--text2); margin-bottom: 2px; }
-  .slots-heading b { color: var(--text); }
-  .cal-dot {
-    width: 4px; height: 4px; border-radius: 50%;
-    background: var(--blue); position: absolute; bottom: 5px;
-  }
+  .cal-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--blue); position: absolute; bottom: 5px; }
   .cal-cell.today .cal-dot { background: #000; }
   .day-tasks-panel { margin-top: 20px; }
 
-  .backlog-card {
-    background: var(--bg2); border: 1px solid var(--border);
-    border-left: 3px solid var(--red);
-    border-radius: var(--radius); padding: 16px;
-    margin-bottom: 12px; display: flex; gap: 16px; align-items: center;
-  }
-  .backlog-info { flex: 1; }
+  .backlog-card { background: var(--bg2); border: 1px solid var(--border); border-left: 3px solid var(--red); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .backlog-info { flex: 1; min-width: 180px; }
   .backlog-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
   .backlog-meta { font-size: 12px; color: var(--text2); }
-  .backlog-impact {
-    background: #1A0505; border: 1px solid #2A0A0A;
-    border-radius: 8px; padding: 12px 16px;
-    text-align: center; min-width: 90px;
-  }
+  .backlog-impact { background: #1A0505; border: 1px solid #2A0A0A; border-radius: 8px; padding: 12px 16px; text-align: center; min-width: 90px; }
   .impact-num { font-size: 28px; font-weight: 800; color: var(--red); }
   .impact-lbl { font-size: 10px; color: var(--text3); }
 
   .booking-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media (max-width: 700px) { .booking-grid { grid-template-columns: 1fr; } }
   .section-title { font-size: 13px; font-weight: 700; color: var(--text2); margin-bottom: 14px; text-transform: uppercase; letter-spacing: .8px; }
   .time-slots { display: grid; grid-template-columns: repeat(auto-fill,minmax(90px,1fr)); gap: 8px; margin-top: 12px; }
-  .slot {
-    padding: 10px; border: 1px solid var(--border);
-    border-radius: 8px; text-align: center;
-    cursor: pointer; font-size: 12px; font-weight: 600;
-    background: var(--bg3); color: var(--text2); transition: all .15s;
-  }
-  .slot:hover { border-color: var(--accent); color: var(--accent); }
+  .slots-heading { grid-column: 1 / -1; font-size: 12px; color: var(--text2); margin-bottom: 2px; }
+  .slots-heading b { color: var(--text); }
+  .slot { padding: 10px; border: 1px solid var(--border); border-radius: 8px; text-align: center; cursor: pointer; font-size: 12px; font-weight: 600; background: var(--bg3); color: var(--text2); }
   .slot.booked { background: var(--bg); color: var(--text3); cursor: not-allowed; }
-  .booking-card {
-    background: var(--bg3); border: 1px solid var(--border);
-    border-radius: 8px; padding: 14px; margin-bottom: 10px;
-  }
+  .booking-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 10px; }
   .booking-name { font-size: 13px; font-weight: 700; }
   .booking-detail { font-size: 12px; color: var(--text2); margin-top: 4px; }
 
-  .synopsis-card {
-    background: var(--bg2); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 20px; margin-bottom: 14px;
-  }
+  .synopsis-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 14px; }
   .synopsis-date { font-size: 18px; font-weight: 700; margin-bottom: 14px; }
   .synopsis-section-label { font-size: 10px; font-weight: 700; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
   .synopsis-item { background: var(--bg3); border-radius: 6px; padding: 10px 12px; margin-bottom: 6px; font-size: 13px; }
   .synopsis-summary { background: var(--bg3); border-left: 3px solid var(--accent); padding: 12px 14px; border-radius: 6px; font-size: 13px; color: var(--text2); line-height: 1.6; }
   .view-switcher { display: flex; gap: 6px; margin-bottom: 20px; background: var(--bg2); border: 1px solid var(--border); padding: 4px; border-radius: 8px; width: fit-content; }
-  .vsw-btn { padding: 7px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; background: transparent; color: var(--text2); transition: all .15s; }
+  .vsw-btn { padding: 7px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; background: transparent; color: var(--text2); }
   .vsw-btn.active { background: var(--accent); color: #000; }
 
-  .modal-bg {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,.75); z-index: 1000;
-    align-items: center; justify-content: center; padding: 20px;
-  }
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
   .modal-bg.open { display: flex; }
-  .modal {
-    background: var(--bg2); border: 1px solid var(--border2);
-    border-radius: 14px; width: 100%; max-width: 480px;
-    max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow);
-  }
-  .modal-header {
-    padding: 20px 20px 0;
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 20px;
-  }
+  .modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 14px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow); }
+  .modal-header { padding: 20px 20px 0; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
   .modal-title { font-size: 17px; font-weight: 700; }
   .modal-close { background: none; border: none; color: var(--text2); font-size: 22px; cursor: pointer; padding: 0; }
   .modal-body { padding: 0 20px 20px; }
 
   .form-group { margin-bottom: 14px; }
   .form-label { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; display: block; }
-  .form-input, .form-select, .form-textarea {
-    width: 100%; padding: 10px 12px;
-    background: var(--bg3); border: 1px solid var(--border2);
-    border-radius: 8px; color: var(--text);
-    font-size: 14px; font-family: inherit;
-    transition: border-color .2s;
-  }
+  .form-input, .form-select, .form-textarea { width: 100%; padding: 10px 12px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-size: 14px; font-family: inherit; }
   .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent); }
-  .form-textarea { resize: vertical; min-height: 70px; font-family: 'SF Mono', Consolas, monospace; }
-  .form-select option { background: var(--bg3); }
+  .form-textarea { resize: vertical; min-height: 70px; }
   .radio-group { display: flex; gap: 12px; }
   .radio-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px; }
   .form-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -406,22 +211,12 @@
   .view { display: none; }
   .view.active { display: block; }
   .hidden { display: none !important; }
-  .row { display: flex; gap: 8px; align-items: center; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .help-text { font-size: 12px; color: var(--text3); line-height: 1.6; }
   .fb-status { display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:4px 10px; border-radius:99px; background:var(--bg3); border:1px solid var(--border2); margin-bottom:14px; }
-  .fb-dot { width:7px; height:7px; border-radius:50%; }
+  .fb-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
 
-  /* ─── MOBILE NAV DRAWER ─────────────────── */
-  .hamburger-btn {
-    display: none; background: none; border: none; color: var(--text);
-    font-size: 20px; cursor: pointer; padding: 4px 8px; margin-right: 8px;
-  }
-  .sidebar-backdrop {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,.6); z-index: 900;
-  }
-  .sidebar-backdrop.open { display: block; }
-
+  /* ─── MOBILE ─────────────────────────────── */
   @media (max-width: 860px) {
     .hamburger-btn { display: inline-flex; }
     .sidebar {
@@ -430,77 +225,67 @@
       box-shadow: var(--shadow);
     }
     .sidebar.open { transform: translateX(0); }
-    .content { padding: 18px 16px; }
-    .page-header { padding: 20px 16px 0; flex-direction: column; gap: 12px; align-items: stretch; }
+    .content { padding: 16px 12px; }
+    .page-header { padding: 18px 12px 0; flex-direction: column; gap: 10px; align-items: stretch; }
     .page-actions { width: 100%; }
     .page-actions .btn { flex: 1; justify-content: center; }
-    .stats-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
-    .stat-card { padding: 14px; }
-    .stat-value { font-size: 24px; }
-    .quadrant { min-height: auto; padding: 12px; }
+    .stats-grid { grid-template-columns: repeat(2,1fr); gap: 8px; margin-bottom: 16px; }
+    .stat-card { padding: 12px; }
+    .stat-value { font-size: 22px; }
+    .stat-label { font-size: 10px; margin-bottom: 4px; }
+
+    .matrix-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .quadrant { min-height: 160px; padding: 8px; border-radius: 8px; }
+    .q-header { margin-bottom: 8px; padding-bottom: 6px; }
+    .q-title { font-size: 11px; }
+    .q-count { font-size: 10px; padding: 1px 6px; }
+    .task-card { padding: 8px; margin-bottom: 6px; border-radius: 6px; }
+    .task-name { font-size: 11.5px; }
+    .task-meta { gap: 4px; margin-top: 6px; }
+    .chip { font-size: 9px; padding: 1px 5px; }
+    .task-actions-row { gap: 4px; margin-top: 6px; }
+    .btn-sm { padding: 4px 7px; font-size: 10px; }
+
     .booking-grid { grid-template-columns: 1fr; }
     .form-row2 { grid-template-columns: 1fr; }
+    .cal-wrap { padding: 12px; }
+  }
+  @media (max-width: 420px) {
+    .matrix-grid { gap: 6px; }
+    .quadrant { padding: 6px; min-height: 140px; }
   }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div style="display:flex; align-items:center;">
+  <div class="topbar-left">
     <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
-    <div class="logo">
-      <div class="logo-icon">⬛</div>
-      TaskFlow Pro
-    </div>
+    <div class="logo"><div class="logo-icon">⬛</div>TaskFlow Pro</div>
   </div>
   <div class="collab-bar">
     <div class="presence-avatars" id="presenceAvatars"></div>
-    <div class="sync-status">
-      <div class="sync-dot" id="syncDot"></div>
-      <span id="syncLabel">Local only</span>
-    </div>
+    <div class="sync-status"><div class="sync-dot" id="syncDot"></div><span id="syncLabel">Local only</span></div>
     <button class="join-btn" id="joinBtn" onclick="showJoinModal()">Join Session</button>
   </div>
 </div>
 
-<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
-
 <div class="app">
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
 
   <aside class="sidebar" id="sidebarEl">
     <div class="nav-section-label">Workspace</div>
-    <div class="nav-item active" onclick="go('dashboard')" data-v="dashboard">
-      <span class="nav-icon">⬛</span> Dashboard
-      <span class="nav-badge" id="nb-dash">0</span>
-    </div>
-    <div class="nav-item" onclick="go('calendar')" data-v="calendar">
-      <span class="nav-icon">📅</span> Calendar
-    </div>
-    <div class="nav-item" onclick="go('synopsis')" data-v="synopsis">
-      <span class="nav-icon">📋</span> Synopsis
-    </div>
+    <div class="nav-item active" onclick="go('dashboard')" data-v="dashboard"><span class="nav-icon">⬛</span> Dashboard<span class="nav-badge" id="nb-dash">0</span></div>
+    <div class="nav-item" onclick="go('calendar')" data-v="calendar"><span class="nav-icon">📅</span> Calendar</div>
+    <div class="nav-item" onclick="go('synopsis')" data-v="synopsis"><span class="nav-icon">📋</span> Synopsis</div>
     <div class="nav-section-label" style="margin-top:12px;">Analytics</div>
-    <div class="nav-item" onclick="go('backlog')" data-v="backlog">
-      <span class="nav-icon">📈</span> Backlog
-      <span class="nav-badge" id="nb-backlog" style="color:var(--red)">0</span>
-    </div>
+    <div class="nav-item" onclick="go('backlog')" data-v="backlog"><span class="nav-icon">📈</span> Backlog<span class="nav-badge" id="nb-backlog" style="color:var(--red)">0</span></div>
     <div class="nav-section-label" style="margin-top:12px;">People</div>
-    <div class="nav-item" onclick="go('booking')" data-v="booking">
-      <span class="nav-icon">🔖</span> Bookings
-      <span class="nav-badge" id="nb-booking">0</span>
-    </div>
-    <div class="nav-item" onclick="go('collab')" data-v="collab">
-      <span class="nav-icon">👥</span> Team
-    </div>
+    <div class="nav-item" onclick="go('booking')" data-v="booking"><span class="nav-icon">🔖</span> Bookings<span class="nav-badge" id="nb-booking">0</span></div>
+    <div class="nav-item" onclick="go('collab')" data-v="collab"><span class="nav-icon">👥</span> Team</div>
     <div class="nav-section-label" style="margin-top:12px;">Tasks</div>
-    <div class="nav-item" onclick="go('list')" data-v="list">
-      <span class="nav-icon">📝</span> All Tasks
-    </div>
-    <div class="sidebar-bottom">
-      <div class="nav-item" onclick="go('settings')" data-v="settings">
-        <span class="nav-icon">⚙️</span> Settings
-      </div>
-    </div>
+    <div class="nav-item" onclick="go('list')" data-v="list"><span class="nav-icon">📝</span> All Tasks</div>
+    <div class="sidebar-bottom"><div class="nav-item" onclick="go('settings')" data-v="settings"><span class="nav-icon">⚙️</span> Settings</div></div>
   </aside>
 
   <main class="main">
@@ -508,9 +293,7 @@
     <div id="dashboardView" class="view active">
       <div class="page-header">
         <div><div class="page-title">Dashboard</div><div class="page-sub">Eisenhower Priority Matrix</div></div>
-        <div class="page-actions">
-          <button class="btn btn-white" onclick="openTaskModal()">+ New Task</button>
-        </div>
+        <div class="page-actions"><button class="btn btn-white" onclick="openTaskModal()">+ New Task</button></div>
       </div>
       <div class="content">
         <div class="stats-grid">
@@ -550,9 +333,7 @@
     </div>
 
     <div id="synopsisView" class="view">
-      <div class="page-header">
-        <div><div class="page-title">Synopsis</div><div class="page-sub">Smart summaries of tasks & meetings</div></div>
-      </div>
+      <div class="page-header"><div><div class="page-title">Synopsis</div><div class="page-sub">Smart summaries of tasks & meetings</div></div></div>
       <div class="content">
         <div class="view-switcher">
           <button class="vsw-btn active" data-sv="day" onclick="setSynView('day')">Daily</button>
@@ -570,9 +351,7 @@
     </div>
 
     <div id="backlogView" class="view">
-      <div class="page-header">
-        <div><div class="page-title">Backlog Analysis</div><div class="page-sub">Deadline drift & delay tracking</div></div>
-      </div>
+      <div class="page-header"><div><div class="page-title">Backlog Analysis</div><div class="page-sub">Deadline drift & delay tracking</div></div></div>
       <div class="content">
         <div class="stats-grid">
           <div class="stat-card"><div class="stat-label">Total Days Behind</div><div class="stat-value danger" id="blDays">0</div></div>
@@ -584,9 +363,7 @@
     </div>
 
     <div id="bookingView" class="view">
-      <div class="page-header">
-        <div><div class="page-title">Booking System</div><div class="page-sub">Schedule & manage appointments</div></div>
-      </div>
+      <div class="page-header"><div><div class="page-title">Booking System</div><div class="page-sub">Schedule & manage appointments</div></div></div>
       <div class="content">
         <div class="booking-grid">
           <div>
@@ -612,26 +389,15 @@
     </div>
 
     <div id="collabView" class="view">
-      <div class="page-header">
-        <div><div class="page-title">Team</div><div class="page-sub">Who's online & recent activity</div></div>
-      </div>
+      <div class="page-header"><div><div class="page-title">Team</div><div class="page-sub">Who's online & recent activity</div></div></div>
       <div class="content">
-        <div class="section-card">
-          <div class="section-title">Online Now</div>
-          <div id="teamList"></div>
-        </div>
-        <div class="section-card">
-          <div class="section-title">Recent Activity</div>
-          <div class="activity-feed" id="activityFeed"></div>
-        </div>
+        <div class="section-card"><div class="section-title">Online Now</div><div id="teamList"></div></div>
+        <div class="section-card"><div class="section-title">Recent Activity</div><div class="activity-feed" id="activityFeed"></div></div>
       </div>
     </div>
 
     <div id="listView" class="view">
-      <div class="page-header">
-        <div><div class="page-title">All Tasks</div></div>
-        <div class="page-actions"><button class="btn btn-white" onclick="openTaskModal()">+ New Task</button></div>
-      </div>
+      <div class="page-header"><div><div class="page-title">All Tasks</div></div><div class="page-actions"><button class="btn btn-white" onclick="openTaskModal()">+ New Task</button></div></div>
       <div class="content" id="allTasksList"></div>
     </div>
 
@@ -642,26 +408,15 @@
         <div class="section-card">
           <div class="section-title">Cloud Sync (Firebase)</div>
           <div class="fb-status" id="fbStatus"><div class="fb-dot" style="background:var(--red);"></div><span>Not connected — running on this browser only</span></div>
-          <p class="help-text mb-16">
-            Paste your Firebase <b>web app config object</b> below (from Firebase Console → Project Settings → Your apps).
-            Once connected, your data saves to the cloud permanently and syncs live across every device and teammate.
-          </p>
-          <div class="form-group">
-            <textarea class="form-textarea" id="fbConfigInput" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","storageBucket":"...","messagingSenderId":"...","appId":"..."}'></textarea>
-          </div>
+          <p class="help-text mb-16">Paste your whole Firebase config snippet below (the one Firebase Console shows you — imports and all are fine, it'll pick out what it needs). Once connected, your data saves to the cloud permanently and syncs live across every device and teammate.</p>
+          <div class="form-group"><textarea class="form-textarea" id="fbConfigInput" placeholder="Paste the whole snippet from Firebase Console here..."></textarea></div>
           <button class="btn btn-white" onclick="connectFirebase()">Connect Firebase</button>
         </div>
 
         <div class="section-card">
           <div class="section-title">Your Profile</div>
-          <div class="form-group">
-            <label class="form-label">Display Name</label>
-            <input class="form-input" id="settingName" placeholder="e.g. Rahul">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Your Email (for booking notifications)</label>
-            <input class="form-input" id="settingEmail" type="email" placeholder="you@email.com">
-          </div>
+          <div class="form-group"><label class="form-label">Display Name</label><input class="form-input" id="settingName" placeholder="e.g. Rahul"></div>
+          <div class="form-group"><label class="form-label">Your Email (for booking notifications)</label><input class="form-input" id="settingEmail" type="email" placeholder="you@email.com"></div>
           <button class="btn btn-white" onclick="saveSettings()">Save Profile</button>
           <div class="fb-status" style="margin-top:14px;"><div class="fb-dot" style="background:var(--blue);"></div><span>Your device's current time zone: <b id="tzDisplay"></b></span></div>
           <p class="help-text">This updates automatically — if you travel, times you see and set will follow wherever your device currently is.</p>
@@ -672,10 +427,8 @@
           <div class="form-group">
             <label class="form-label">Slot Duration</label>
             <select class="form-select" id="settingSlot">
-              <option value="15">15 minutes</option>
-              <option value="30" selected>30 minutes</option>
-              <option value="45">45 minutes</option>
-              <option value="60">60 minutes</option>
+              <option value="15">15 minutes</option><option value="30" selected>30 minutes</option>
+              <option value="45">45 minutes</option><option value="60">60 minutes</option>
             </select>
           </div>
           <button class="btn btn-white" onclick="saveSettings()">Save</button>
@@ -683,10 +436,7 @@
 
         <div class="section-card">
           <div class="section-title">Data</div>
-          <div class="row">
-            <button class="btn btn-ghost" onclick="exportData()">📥 Export JSON</button>
-            <button class="btn btn-danger" onclick="clearAll()">🗑️ Clear All</button>
-          </div>
+          <div class="row"><button class="btn btn-ghost" onclick="exportData()">📥 Export JSON</button><button class="btn btn-danger" onclick="clearAll()">🗑️ Clear All</button></div>
         </div>
       </div>
     </div>
@@ -696,54 +446,21 @@
 
 <div class="modal-bg" id="taskModalBg">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="taskModalTitle">New Task</div>
-      <button class="modal-close" onclick="closeTaskModal()">×</button>
-    </div>
+    <div class="modal-header"><div class="modal-title" id="taskModalTitle">New Task</div><button class="modal-close" onclick="closeTaskModal()">×</button></div>
     <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Task Title *</label>
-        <input class="form-input" id="fTitle" placeholder="What needs to be done?">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Description</label>
-        <textarea class="form-textarea" id="fDesc" placeholder="Details..." style="font-family:inherit;"></textarea>
+      <div class="form-group"><label class="form-label">Task Title *</label><input class="form-input" id="fTitle" placeholder="What needs to be done?"></div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="fDesc" placeholder="Details..."></textarea></div>
+      <div class="form-row2">
+        <div class="form-group"><label class="form-label">Start Date</label><input class="form-input" id="fStart" type="date"></div>
+        <div class="form-group"><label class="form-label">End Date (Due)</label><input class="form-input" id="fDue" type="date"></div>
       </div>
       <div class="form-row2">
-        <div class="form-group">
-          <label class="form-label">Start Date</label>
-          <input class="form-input" id="fStart" type="date">
-        </div>
-        <div class="form-group">
-          <label class="form-label">End Date (Due)</label>
-          <input class="form-input" id="fDue" type="date">
-        </div>
+        <div class="form-group"><label class="form-label">Start Time <span style="color:var(--text3);font-weight:400;">(optional)</span></label><input class="form-input" id="fStartTime" type="time"></div>
+        <div class="form-group"><label class="form-label">Due Time <span style="color:var(--text3);font-weight:400;">(optional)</span></label><input class="form-input" id="fDueTime" type="time"></div>
       </div>
-      <div class="form-row2">
-        <div class="form-group">
-          <label class="form-label">Start Time <span style="color:var(--text3);font-weight:400;">(optional)</span></label>
-          <input class="form-input" id="fStartTime" type="time">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Due Time <span style="color:var(--text3);font-weight:400;">(optional)</span></label>
-          <input class="form-input" id="fDueTime" type="time">
-        </div>
-      </div>
-      <p class="help-text mb-16">Leave time blank for an all-day deadline. If you set a time, every teammate sees it converted to their own local clock — including you, if you're travelling.</p>
-      <div class="form-group">
-        <label class="form-label">Important?</label>
-        <div class="radio-group">
-          <label class="radio-label"><input type="radio" name="imp" value="true" checked> Yes</label>
-          <label class="radio-label"><input type="radio" name="imp" value="false"> No</label>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Urgent?</label>
-        <div class="radio-group">
-          <label class="radio-label"><input type="radio" name="urg" value="true" checked> Yes</label>
-          <label class="radio-label"><input type="radio" name="urg" value="false"> No</label>
-        </div>
-      </div>
+      <p class="help-text mb-16">Leave time blank for an all-day deadline. If you set a time, every teammate sees it converted to their own local clock.</p>
+      <div class="form-group"><label class="form-label">Important?</label><div class="radio-group"><label class="radio-label"><input type="radio" name="imp" value="true" checked> Yes</label><label class="radio-label"><input type="radio" name="imp" value="false"> No</label></div></div>
+      <div class="form-group"><label class="form-label">Urgent?</label><div class="radio-group"><label class="radio-label"><input type="radio" name="urg" value="true" checked> Yes</label><label class="radio-label"><input type="radio" name="urg" value="false"> No</label></div></div>
       <button class="btn btn-white" style="width:100%" onclick="saveTask()">Save Task</button>
     </div>
   </div>
@@ -751,25 +468,11 @@
 
 <div class="modal-bg" id="joinModalBg">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Join Team Session</div>
-      <button class="modal-close" onclick="closeJoinModal()">×</button>
-    </div>
+    <div class="modal-header"><div class="modal-title">Join Team Session</div><button class="modal-close" onclick="closeJoinModal()">×</button></div>
     <div class="modal-body">
-      <p class="help-text mb-16" id="joinHelp">
-        Enter a shared session ID so your team sees the same board in real-time. Connect Firebase in Settings first for live sync.
-      </p>
-      <div class="form-group">
-        <label class="form-label">Your Name</label>
-        <input class="form-input" id="jName" placeholder="e.g. Rahul">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Session ID (share this with your team)</label>
-        <div class="row">
-          <input class="form-input" id="jSession" placeholder="e.g. team-alpha">
-          <button class="btn btn-ghost btn-sm" onclick="generateSession()">Generate</button>
-        </div>
-      </div>
+      <p class="help-text mb-16" id="joinHelp">Enter a shared session ID so your team sees the same board in real-time.</p>
+      <div class="form-group"><label class="form-label">Your Name</label><input class="form-input" id="jName" placeholder="e.g. Rahul"></div>
+      <div class="form-group"><label class="form-label">Session ID (share this with your team)</label><div class="row"><input class="form-input" id="jSession" placeholder="e.g. team-alpha"><button class="btn btn-ghost btn-sm" onclick="generateSession()">Generate</button></div></div>
       <button class="btn btn-white" style="width:100%;margin-top:8px;" onclick="joinSession()">Join Session</button>
     </div>
   </div>
@@ -777,76 +480,48 @@
 
 <div class="modal-bg" id="bkModalBg">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">Confirm Booking</div>
-      <button class="modal-close" onclick="closeBkModal()">×</button>
-    </div>
+    <div class="modal-header"><div class="modal-title">Confirm Booking</div><button class="modal-close" onclick="closeBkModal()">×</button></div>
     <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Name *</label>
-        <input class="form-input" id="bkName" placeholder="Your name">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Email *</label>
-        <input class="form-input" id="bkEmail" type="email" placeholder="you@email.com">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Purpose</label>
-        <textarea class="form-textarea" id="bkPurpose" placeholder="What would you like to discuss?" style="font-family:inherit;"></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Selected Slot</label>
-        <input class="form-input" id="bkSlotDisplay" readonly style="opacity:.6">
-      </div>
+      <div class="form-group"><label class="form-label">Name *</label><input class="form-input" id="bkName" placeholder="Your name"></div>
+      <div class="form-group"><label class="form-label">Email *</label><input class="form-input" id="bkEmail" type="email" placeholder="you@email.com"></div>
+      <div class="form-group"><label class="form-label">Purpose</label><textarea class="form-textarea" id="bkPurpose" placeholder="What would you like to discuss?"></textarea></div>
+      <div class="form-group"><label class="form-label">Selected Slot</label><input class="form-input" id="bkSlotDisplay" readonly style="opacity:.6"></div>
       <button class="btn btn-white" style="width:100%" onclick="confirmBooking()">Confirm Booking</button>
     </div>
   </div>
 </div>
 
-<!-- Firebase SDK (compat build, served from cdnjs) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-app-compat.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-firestore-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.1/firebase-app-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.1/firebase-firestore-compat.min.js"></script>
 
 <script>
-// ─────────────────────────────────────────
-//  STATE
-// ─────────────────────────────────────────
-let tasks    = [];
-let bookings = [];
-let activity = [];
-let members  = [];
-let tid      = 1;
-let bid      = 1;
-let editId   = null;
-let calDate  = new Date();
-let bkDate   = new Date();
-let synDate  = new Date();
-let synView  = 'day';
-let bkSlot   = null;
-let bkSelectedDate = null;
-let session  = null;
-let me       = null;
+// ───────────────────────── STATE ─────────────────────────
+let tasks = [], bookings = [], activity = [], members = [];
+let tid = 1, bid = 1, editId = null;
+let calDate = new Date(), bkDate = new Date(), synDate = new Date();
+let synView = 'day', bkSlot = null, bkSelectedDate = null;
+let session = null, me = null;
 let settings = { name:'', email:'', slot: 30 };
-
 let db = null;
 let workspaceId = localStorage.getItem('tf_workspace') || ('personal-' + Math.random().toString(36).slice(2,10));
 localStorage.setItem('tf_workspace', workspaceId);
-let unsubDoc = null;
-let unsubMembers = null;
+let unsubDoc = null, unsubMembers = null;
 
-// ─────────────────────────────────────────
-//  DATE HELPERS  (fix: never let JS's UTC-based
-//  Date parsing silently shift a manually-typed
-//  date. Every date is stored/read as a plain
-//  "YYYY-MM-DD" string and only ever converted
-//  using LOCAL calendar math — never toISOString()
-//  on a local Date, and never `new Date(str)` on
-//  a date-only string.)
-// ─────────────────────────────────────────
+// ───────────────────────── MOBILE NAV ─────────────────────────
+function toggleSidebar() {
+  document.getElementById('sidebarEl').classList.toggle('open');
+  document.getElementById('sidebarBackdrop').classList.toggle('open');
+}
+function closeSidebarMobile() {
+  document.getElementById('sidebarEl').classList.remove('open');
+  document.getElementById('sidebarBackdrop').classList.remove('open');
+}
+
+// ───────────────────────── DATE HELPERS ─────────────────────────
 function parseLocalDate(str) {
   if (!str) return null;
   const [y,m,d] = str.split('-').map(Number);
-  return new Date(y, m-1, d); // local midnight — no UTC shift
+  return new Date(y, m-1, d);
 }
 function toDateStr(dateObj) {
   const y = dateObj.getFullYear();
@@ -855,7 +530,6 @@ function toDateStr(dateObj) {
   return `${y}-${m}-${d}`;
 }
 function isOverdue(task) {
-  // Accepts either a plain "YYYY-MM-DD" string (all-day, legacy) or a full task object
   if (typeof task === 'string') {
     const t = new Date(); t.setHours(0,0,0,0);
     return parseLocalDate(task) < t;
@@ -885,19 +559,11 @@ function fmtDate(d) {
   if (!d) return '';
   return parseLocalDate(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 }
-// Converts a stored UTC moment to whatever time zone THIS device is currently
-// in — automatically correct for distributed teams and for travellers, since
-// the browser re-reads its live OS time zone on every render.
 function fmtMoment(iso) {
   if (!iso) return '';
-  return new Date(iso).toLocaleString(undefined, {
-    month:'short', day:'numeric', hour:'numeric', minute:'2-digit', timeZoneName:'short'
-  });
+  return new Date(iso).toLocaleString(undefined, { month:'short', day:'numeric', hour:'numeric', minute:'2-digit', timeZoneName:'short' });
 }
-function fmtDueDisplay(task) {
-  if (task.dueDateTime) return fmtMoment(task.dueDateTime);
-  return fmtDate(task.dueDate);
-}
+function fmtDueDisplay(task) { return task.dueDateTime ? fmtMoment(task.dueDateTime) : fmtDate(task.dueDate); }
 function isoToLocalDateStr(iso) { return iso ? toDateStr(new Date(iso)) : ''; }
 function isoToLocalTimeStr(iso) {
   if (!iso) return '';
@@ -911,27 +577,20 @@ function quadrant(t) {
   return 4;
 }
 
-// ─────────────────────────────────────────
-//  SYNC STATE
-// ─────────────────────────────────────────
+// ───────────────────────── SYNC STATE ─────────────────────────
 function setSyncState(s) {
-  const dot = document.getElementById('syncDot');
-  const lbl = document.getElementById('syncLabel');
+  const dot = document.getElementById('syncDot'), lbl = document.getElementById('syncLabel');
   dot.className = 'sync-dot' + (s==='syncing'?' syncing':s==='offline'?' offline':s==='local'?' local':'');
   lbl.textContent = s==='syncing' ? 'Saving…' : s==='offline' ? 'Connection issue' : s==='local' ? 'Local only' : 'Cloud synced';
 }
 
-// ─────────────────────────────────────────
-//  STORAGE: localStorage always, Firestore when connected
-// ─────────────────────────────────────────
+// ───────────────────────── STORAGE ─────────────────────────
 async function push(who) {
-  localStorage.setItem('tf_tasks',    JSON.stringify(tasks));
+  localStorage.setItem('tf_tasks', JSON.stringify(tasks));
   localStorage.setItem('tf_bookings', JSON.stringify(bookings));
   localStorage.setItem('tf_tid', tid);
   localStorage.setItem('tf_bid', bid);
-
   if (!db) { setSyncState('local'); updateBadges(); return; }
-
   setSyncState('syncing');
   try {
     await db.collection('workspaces').doc(workspaceId).set({
@@ -940,54 +599,19 @@ async function push(who) {
       updatedBy: who || me?.name || settings.name || 'Someone'
     });
     setSyncState('synced');
-  } catch(e) {
-    setSyncState('offline');
-  }
+  } catch(e) { setSyncState('offline'); }
   updateBadges();
 }
-
 function loadLocal() {
-  const t  = localStorage.getItem('tf_tasks');
-  const b  = localStorage.getItem('tf_bookings');
-  const tc = localStorage.getItem('tf_tid');
-  const bc = localStorage.getItem('tf_bid');
-  if (t)  tasks    = JSON.parse(t);
-  if (b)  bookings = JSON.parse(b);
-  if (tc) tid      = parseInt(tc);
-  if (bc) bid      = parseInt(bc);
+  const t=localStorage.getItem('tf_tasks'), b=localStorage.getItem('tf_bookings');
+  const tc=localStorage.getItem('tf_tid'), bc=localStorage.getItem('tf_bid');
+  if (t) tasks = JSON.parse(t);
+  if (b) bookings = JSON.parse(b);
+  if (tc) tid = parseInt(tc);
+  if (bc) bid = parseInt(bc);
 }
 
-// ─────────────────────────────────────────
-//  FIREBASE
-// ─────────────────────────────────────────
-function loadFirebaseConfig() {
-  const saved = localStorage.getItem('tf_firebase_config');
-  if (!saved) return;
-  try {
-    const cfg = JSON.parse(saved);
-    document.getElementById('fbConfigInput').value = JSON.stringify(cfg, null, 2);
-    initFirebase(cfg);
-  } catch(e) {}
-}
-
-function initFirebase(cfg) {
-  try {
-    if (!firebase.apps.length) firebase.initializeApp(cfg);
-    db = firebase.firestore();
-    document.getElementById('fbStatus').innerHTML =
-      '<div class="fb-dot" style="background:var(--green);"></div><span>Connected — data is saving to the cloud</span>';
-    attachWorkspaceListener();
-    return true;
-  } catch(e) {
-    document.getElementById('fbStatus').innerHTML =
-      '<div class="fb-dot" style="background:var(--red);"></div><span>Connection failed — check the config</span>';
-    return false;
-  }
-}
-
-// Accepts a clean JSON object OR the whole snippet Firebase shows you
-// (imports, comments, `const firebaseConfig = {...}`, initializeApp, etc.).
-// It just hunts for the known config fields and ignores everything else.
+// ───────────────────────── FIREBASE ─────────────────────────
 function extractFirebaseConfig(raw) {
   const keys = ['apiKey','authDomain','databaseURL','projectId','storageBucket','messagingSenderId','appId','measurementId'];
   const cfg = {};
@@ -998,12 +622,36 @@ function extractFirebaseConfig(raw) {
   if (!cfg.apiKey || !cfg.projectId) throw new Error('missing fields');
   return cfg;
 }
-
+function loadFirebaseConfig() {
+  const saved = localStorage.getItem('tf_firebase_config');
+  if (!saved) return;
+  try {
+    const cfg = JSON.parse(saved);
+    document.getElementById('fbConfigInput').value = JSON.stringify(cfg, null, 2);
+    initFirebase(cfg);
+  } catch(e) {}
+}
+function initFirebase(cfg) {
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(cfg);
+    db = firebase.firestore();
+    document.getElementById('fbStatus').innerHTML = '<div class="fb-dot" style="background:var(--green);"></div><span>Connected — data is saving to the cloud</span>';
+    attachWorkspaceListener();
+    return true;
+  } catch(e) {
+    document.getElementById('fbStatus').innerHTML = '<div class="fb-dot" style="background:var(--red);"></div><span>Connection failed — check the config</span>';
+    return false;
+  }
+}
 function connectFirebase() {
   const raw = document.getElementById('fbConfigInput').value.trim();
+  if (typeof firebase === 'undefined') {
+    alert('The Firebase library did not load (check your internet connection or ad-blocker). Reload the page and try again.');
+    return;
+  }
   try {
     const cfg = extractFirebaseConfig(raw);
-    document.getElementById('fbConfigInput').value = JSON.stringify(cfg, null, 2);   // show the cleaned version
+    document.getElementById('fbConfigInput').value = JSON.stringify(cfg, null, 2);
     localStorage.setItem('tf_firebase_config', JSON.stringify(cfg));
     const ok = initFirebase(cfg);
     alert(ok ? 'Firebase connected! Your data now saves to the cloud permanently.' : 'Could not connect — double check the config object.');
@@ -1011,112 +659,73 @@ function connectFirebase() {
     alert('Couldn\'t find your Firebase keys in that text. Paste the firebaseConfig block from your Firebase console (it needs at least apiKey and projectId).');
   }
 }
-
 function attachWorkspaceListener() {
   if (!db) return;
   if (unsubDoc) unsubDoc();
   const ref = db.collection('workspaces').doc(workspaceId);
-
   unsubDoc = ref.onSnapshot(snap => {
-    if (!snap.exists) { push(); return; } // first time this workspace is used — seed it
+    if (!snap.exists) { push(); return; }
     const d = snap.data();
-    tasks    = d.tasks    || [];
-    bookings = d.bookings || [];
-    tid      = d.tid      || tid;
-    bid      = d.bid      || bid;
-    localStorage.setItem('tf_tasks',    JSON.stringify(tasks));
+    tasks = d.tasks || []; bookings = d.bookings || [];
+    tid = d.tid || tid; bid = d.bid || bid;
+    localStorage.setItem('tf_tasks', JSON.stringify(tasks));
     localStorage.setItem('tf_bookings', JSON.stringify(bookings));
     renderAll();
     setSyncState('synced');
-    if (d.updatedBy && d.updatedBy !== (me?.name||settings.name)) {
-      logActivity(d.updatedBy + ' updated the board');
-    }
+    if (d.updatedBy && d.updatedBy !== (me?.name||settings.name)) logActivity(d.updatedBy + ' updated the board');
   }, () => setSyncState('offline'));
-
   if (unsubMembers) unsubMembers();
   unsubMembers = ref.collection('members').onSnapshot(snap => {
-    const now = Date.now();
-    members = [];
-    snap.forEach(docu => {
-      const m = docu.data();
-      const ts = m.lastSeen ? m.lastSeen.toMillis() : 0;
-      if (now - ts < 45000) members.push(m);
-    });
+    const now = Date.now(); members = [];
+    snap.forEach(docu => { const m = docu.data(); const ts = m.lastSeen?m.lastSeen.toMillis():0; if (now-ts<45000) members.push(m); });
     renderPresence(); renderTeam();
   });
-
   if (me) announcePresence();
 }
-
 function announcePresence() {
   if (!db || !me) return;
   const ref = db.collection('workspaces').doc(workspaceId).collection('members').doc(String(me.id));
   const beat = () => ref.set({ name: me.name, color: me.color, lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
-  beat();
-  setInterval(beat, 20000);
+  beat(); setInterval(beat, 20000);
 }
 
-// ─────────────────────────────────────────
-//  SESSION / TEAM
-// ─────────────────────────────────────────
+// ───────────────────────── TEAM ─────────────────────────
 const COLORS = ['#FF6B6B','#4ECDC4','#45B7D1','#96CEB4','#FFEAA7','#DDA0DD','#98D8C8'];
 const savedSession = localStorage.getItem('tf_session');
-const savedMe      = localStorage.getItem('tf_me');
+const savedMe = localStorage.getItem('tf_me');
 if (savedSession) { session = savedSession; workspaceId = session; localStorage.setItem('tf_workspace', workspaceId); }
-if (savedMe)      me = JSON.parse(savedMe);
-if (me) {
-  document.getElementById('joinBtn').textContent = 'Session: ' + session;
-  document.getElementById('joinBtn').classList.add('joined');
-}
+if (savedMe) me = JSON.parse(savedMe);
 
 function showJoinModal() {
-  document.getElementById('jName').value    = settings.name || '';
+  document.getElementById('jName').value = settings.name || '';
   document.getElementById('jSession').value = session || '';
-  document.getElementById('joinHelp').textContent = db
-    ? 'Enter a shared session ID so your team sees the same board in real-time.'
-    : 'Connect Firebase in Settings first — otherwise this session ID only affects this browser.';
+  document.getElementById('joinHelp').textContent = db ? 'Enter a shared session ID so your team sees the same board in real-time.' : 'Connect Firebase in Settings first — otherwise this session ID only affects this browser.';
   document.getElementById('joinModalBg').classList.add('open');
 }
 function closeJoinModal() { document.getElementById('joinModalBg').classList.remove('open'); }
 function generateSession() { document.getElementById('jSession').value = 'team-' + Math.random().toString(36).slice(2,8); }
-
 function joinSession() {
   const name = document.getElementById('jName').value.trim();
-  const sid  = document.getElementById('jSession').value.trim();
+  const sid = document.getElementById('jSession').value.trim();
   if (!name || !sid) { alert('Fill in name and session ID'); return; }
-
   me = { id: Date.now(), name, color: COLORS[Math.floor(Math.random()*COLORS.length)] };
-  session = sid;
-  workspaceId = sid;
+  session = sid; workspaceId = sid;
   localStorage.setItem('tf_session', session);
   localStorage.setItem('tf_me', JSON.stringify(me));
   localStorage.setItem('tf_workspace', workspaceId);
   settings.name = name;
   localStorage.setItem('tf_settings', JSON.stringify(settings));
-
   document.getElementById('joinBtn').textContent = 'Session: ' + session;
   document.getElementById('joinBtn').classList.add('joined');
   closeJoinModal();
-
-  if (db) { attachWorkspaceListener(); }
-  else { alert('Saved. Connect Firebase in Settings to make this a live shared session.'); }
+  if (db) attachWorkspaceListener();
+  else alert('Saved. Connect Firebase in Settings to make this a live shared session.');
 }
-
 function renderPresence() {
-  document.getElementById('presenceAvatars').innerHTML = members.slice(0,6).map(m => `
-    <div class="avatar" style="background:${m.color}; color:#000;">
-      ${m.name.charAt(0).toUpperCase()}
-      <div class="tooltip">${m.name}</div>
-    </div>`).join('');
+  document.getElementById('presenceAvatars').innerHTML = members.slice(0,6).map(m => `<div class="avatar" style="background:${m.color}; color:#000;">${m.name.charAt(0).toUpperCase()}<div class="tooltip">${m.name}</div></div>`).join('');
 }
 function renderTeam() {
-  const c = document.getElementById('teamList');
-  c.innerHTML = members.length ? members.map(m => `
-    <div class="row" style="margin-bottom:12px;">
-      <div class="avatar" style="background:${m.color}; color:#000; position:static; margin:0; flex-shrink:0;">${m.name.charAt(0).toUpperCase()}</div>
-      <span style="font-size:14px; font-weight:600;">${m.name}</span>
-      <span class="chip green" style="margin-left:auto;">Online</span>
-    </div>`).join('')
+  document.getElementById('teamList').innerHTML = members.length ? members.map(m => `<div class="row" style="margin-bottom:12px;"><div class="avatar" style="background:${m.color}; color:#000; position:static; margin:0; flex-shrink:0;">${m.name.charAt(0).toUpperCase()}</div><span style="font-size:14px; font-weight:600;">${m.name}</span><span class="chip" style="margin-left:auto;background:#031A12;color:var(--green);border-color:#0A2A20;">Online</span></div>`).join('')
     : '<div class="empty"><div class="empty-icon">👥</div><p>No one online yet. Connect Firebase, then share your Session ID.</p></div>';
 }
 function logActivity(msg) {
@@ -1125,34 +734,22 @@ function logActivity(msg) {
   renderActivity();
 }
 function renderActivity() {
-  const f = document.getElementById('activityFeed');
-  f.innerHTML = activity.length ? activity.map(a => `<div class="activity-item">${a.msg} <span style="float:right;color:var(--text3);">${a.ts}</span></div>`).join('')
-    : '<div class="help-text">No activity yet.</div>';
+  document.getElementById('activityFeed').innerHTML = activity.length ? activity.map(a => `<div class="activity-item">${a.msg} <span style="float:right;color:var(--text3);">${a.ts}</span></div>`).join('') : '<div class="help-text">No activity yet.</div>';
 }
 
-// ─────────────────────────────────────────
-//  TASK CARD
-// ─────────────────────────────────────────
+// ───────────────────────── TASK CARD ─────────────────────────
 function taskCardHTML(task) {
   const over = task.dueDate && isOverdue(task) && !task.completed;
   const days = daysOverdue(task);
-
   let driftHTML = '';
   if (task.originalDueDate && task.dueDate !== task.originalDueDate) {
-    const orig   = parseLocalDate(task.originalDueDate);
-    const curr   = parseLocalDate(task.dueDate);
+    const orig = parseLocalDate(task.originalDueDate), curr = parseLocalDate(task.dueDate);
     const shifts = task.dateChanges || 1;
-    const drift  = Math.max(0, Math.round((curr - orig)/864e5));
-    const pct    = Math.min(100, (drift/30)*100);
-    const cls    = pct < 30 ? 'ok' : pct < 70 ? 'warn' : 'bad';
-    driftHTML = `
-      <div class="drift-wrap">
-        <div class="drift-labels"><span>Original: ${fmtDate(task.originalDueDate)}</span><span>Current: ${fmtDate(task.dueDate)}</span></div>
-        <div class="drift-track"><div class="drift-fill ${cls}" style="width:${pct}%"></div></div>
-        <div class="drift-footer"><span>Drifted ${drift} day${drift!==1?'s':''}</span><span class="drift-badge shifted">Changed ${shifts}×</span></div>
-      </div>`;
+    const drift = Math.max(0, Math.round((curr - orig)/864e5));
+    const pct = Math.min(100, (drift/30)*100);
+    const cls = pct < 30 ? 'ok' : pct < 70 ? 'warn' : 'bad';
+    driftHTML = `<div class="drift-wrap"><div class="drift-labels"><span>Orig: ${fmtDate(task.originalDueDate)}</span><span>Now: ${fmtDate(task.dueDate)}</span></div><div class="drift-track"><div class="drift-fill ${cls}" style="width:${pct}%"></div></div><div class="drift-footer"><span>${drift}d drift</span><span class="drift-badge shifted">×${shifts}</span></div></div>`;
   }
-
   return `
     <div class="task-card ${task.completed?'completed':''}">
       <div class="task-row">
@@ -1161,22 +758,19 @@ function taskCardHTML(task) {
       </div>
       <div class="task-meta">
         ${task.startDate ? `<span class="chip blue">▶ ${task.startDateTime?fmtMoment(task.startDateTime):fmtDate(task.startDate)}</span>` : ''}
-        ${task.dueDate ? `<span class="chip ${over?'red':''}">${over?'🚩 ':'📅 '}${fmtDueDisplay(task)}${over?' ('+days+'d late)':''}</span>` : ''}
-        ${task.importance ? '<span class="chip amber">⭐ Important</span>' : ''}
-        ${task.urgency    ? '<span class="chip">⚡ Urgent</span>' : ''}
-        ${task.createdBy ? `<span class="chip" style="color:var(--text3);font-size:10px;">by ${task.createdBy}</span>` : ''}
+        ${task.dueDate ? `<span class="chip ${over?'red':''}">${over?'🚩':'📅'} ${fmtDueDisplay(task)}${over?' ('+days+'d)':''}</span>` : ''}
+        ${task.importance ? '<span class="chip amber">⭐</span>' : ''}
+        ${task.urgency ? '<span class="chip">⚡</span>' : ''}
       </div>
       ${driftHTML}
       <div class="task-actions-row">
         <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openTaskModal(${task.id})">✏️ Edit</button>
-        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();delTask(${task.id})">🗑️ Delete</button>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();delTask(${task.id})">🗑️</button>
       </div>
     </div>`;
 }
 
-// ─────────────────────────────────────────
-//  RENDER ALL
-// ─────────────────────────────────────────
+// ───────────────────────── RENDER ALL ─────────────────────────
 function renderAll() {
   updateStats(); renderMatrix(); renderCalendar(); renderBacklog();
   renderList(); renderSynopsis(); renderBookingCalendar(); renderBookings();
@@ -1200,33 +794,26 @@ function renderMatrix() {
   tasks.forEach(t => qs[quadrant(t)].push(t));
   for (let i=1;i<=4;i++) {
     document.getElementById('qc'+i).textContent = qs[i].length;
-    document.getElementById('q'+i).innerHTML = qs[i].length ? qs[i].map(taskCardHTML).join('') : '<div class="empty"><div class="empty-icon">📭</div></div>';
+    document.getElementById('q'+i).innerHTML = qs[i].length ? qs[i].map(taskCardHTML).join('') : '<div class="empty"><div class="empty-icon" style="font-size:22px;">📭</div></div>';
   }
 }
 
-// ─────────────────────────────────────────
-//  CALENDAR  (uses toDateStr — local, no UTC shift)
-// ─────────────────────────────────────────
+// ───────────────────────── CALENDAR ─────────────────────────
 function renderCalendar() {
   const y=calDate.getFullYear(), m=calDate.getMonth();
   document.getElementById('calMonth').textContent = calDate.toLocaleDateString('en-US',{month:'long',year:'numeric'});
-  buildCal('calGrid', y, m, 'showDayTasks');
+  buildCal('calGrid', y, m, 'showDayTasks', null);
 }
 function buildCal(gridId, y, m, fnName, selectedDs) {
   const grid = document.getElementById(gridId);
-  const first = new Date(y,m,1).getDay();
-  const days  = new Date(y,m+1,0).getDate();
-  const prev  = new Date(y,m,0).getDate();
+  const first = new Date(y,m,1).getDay(), days = new Date(y,m+1,0).getDate(), prev = new Date(y,m,0).getDate();
   const today = new Date();
-
   grid.innerHTML = ['Su','Mo','Tu','We','Th','Fr','Sa'].map(d=>`<div class="cal-day-hdr">${d}</div>`).join('');
   for (let i=first-1;i>=0;i--) grid.innerHTML += `<div class="cal-cell other-month">${prev-i}</div>`;
-
   for (let d=1; d<=days; d++) {
-    const date = new Date(y,m,d);
-    const ds   = toDateStr(date);
-    const dts  = tasks.filter(t=>t.dueDate===ds);
-    const isTod= date.toDateString()===today.toDateString();
+    const date = new Date(y,m,d), ds = toDateStr(date);
+    const dts = tasks.filter(t=>t.dueDate===ds);
+    const isTod = date.toDateString()===today.toDateString();
     grid.innerHTML += `<div class="cal-cell ${isTod?'today':''} ${dts.length?'has-task':''} ${selectedDs===ds?'selected':''}" onclick="${fnName}('${ds}')">${d}${dts.length?'<div class="cal-dot"></div>':''}</div>`;
   }
   const tot=first+days, rem = tot%7===0?0:7-(tot%7);
@@ -1234,23 +821,19 @@ function buildCal(gridId, y, m, fnName, selectedDs) {
 }
 function showDayTasks(ds) {
   const dts = tasks.filter(t=>t.dueDate===ds);
-  document.getElementById('dayPanel').innerHTML = dts.length
-    ? `<div class="section-card"><div class="section-title">Tasks for ${fmtDate(ds)}</div>${dts.map(taskCardHTML).join('')}</div>` : '';
+  document.getElementById('dayPanel').innerHTML = dts.length ? `<div class="section-card"><div class="section-title">Tasks for ${fmtDate(ds)}</div>${dts.map(taskCardHTML).join('')}</div>` : '';
 }
 function moveMonth(d) { calDate.setMonth(calDate.getMonth()+d); renderCalendar(); }
 function goToday() { calDate=new Date(); renderCalendar(); }
 
-// ─────────────────────────────────────────
-//  BACKLOG
-// ─────────────────────────────────────────
+// ───────────────────────── BACKLOG ─────────────────────────
 function renderBacklog() {
   const ov = tasks.filter(t=>t.dueDate&&(!t.completed||(t.completed&&t.completedAt&&parseLocalDate(t.dueDate) < new Date(t.completedAt))));
   const tot = ov.reduce((s,t)=>s+daysOverdue(t),0);
   const avg = ov.length ? Math.round(tot/ov.length) : 0;
-  document.getElementById('blDays').textContent  = tot;
+  document.getElementById('blDays').textContent = tot;
   document.getElementById('blCount').textContent = ov.length;
   document.getElementById('blAvg').innerHTML = avg+'<span style="font-size:14px;color:var(--text2)"> days</span>';
-
   const list = document.getElementById('blList');
   if (!ov.length) { list.innerHTML='<div class="empty"><div class="empty-icon">🎉</div><p>No backlog! Everything is on track.</p></div>'; return; }
   ov.sort((a,b)=>daysOverdue(b)-daysOverdue(a));
@@ -1265,25 +848,22 @@ function renderBacklog() {
     </div>`).join('');
 }
 
-// ─────────────────────────────────────────
-//  SYNOPSIS
-// ─────────────────────────────────────────
+// ───────────────────────── SYNOPSIS ─────────────────────────
 function setSynView(v) {
   synView=v;
   document.querySelectorAll('[data-sv]').forEach(b=>b.classList.toggle('active',b.dataset.sv===v));
   renderSynopsis();
 }
 function moveSyn(d) {
-  if (synView==='day')   synDate.setDate(synDate.getDate()+d);
-  if (synView==='week')  synDate.setDate(synDate.getDate()+d*7);
+  if (synView==='day') synDate.setDate(synDate.getDate()+d);
+  if (synView==='week') synDate.setDate(synDate.getDate()+d*7);
   if (synView==='month') synDate.setMonth(synDate.getMonth()+d);
   renderSynopsis();
 }
 function renderSynopsis() {
   let title='', cards=[];
   if (synView==='day') {
-    const ds = toDateStr(synDate);
-    title = fmtDate(ds);
+    const ds = toDateStr(synDate); title = fmtDate(ds);
     cards.push(makeSynCard('Daily View', tasks.filter(t=>t.dueDate===ds), bookings.filter(b=>b.date===ds)));
   } else if (synView==='week') {
     const ws=new Date(synDate); ws.setDate(ws.getDate()-ws.getDay());
@@ -1291,8 +871,7 @@ function renderSynopsis() {
     title = fmtDate(toDateStr(ws)) + ' – ' + fmtDate(toDateStr(we));
     for (let i=0;i<7;i++) {
       const d2=new Date(ws); d2.setDate(d2.getDate()+i);
-      const ds2=toDateStr(d2);
-      const dt=tasks.filter(t=>t.dueDate===ds2), db_=bookings.filter(b=>b.date===ds2);
+      const ds2=toDateStr(d2), dt=tasks.filter(t=>t.dueDate===ds2), db_=bookings.filter(b=>b.date===ds2);
       if (dt.length||db_.length) cards.push(makeSynCard(d2.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'}), dt, db_));
     }
   } else {
@@ -1306,22 +885,15 @@ function renderSynopsis() {
   document.getElementById('synContent').innerHTML = cards.length ? cards.join('') : '<div class="empty"><div class="empty-icon">📭</div><p>No activity for this period.</p></div>';
 }
 function makeSynCard(heading, dt, db_) {
-  const done=dt.filter(t=>t.completed).length;
-  const over=dt.filter(t=>!t.completed&&t.dueDate&&isOverdue(t)).length;
-  const summary = `${dt.length} task${dt.length!==1?'s':''} and ${db_.length} meeting${db_.length!==1?'s':''}.`
-    + (done?` ${done} completed.`:'') + (over?` ⚠️ ${over} overdue.`:'');
-  return `
-    <div class="synopsis-card">
-      <div class="synopsis-date">${heading}</div>
-      ${dt.length?`<div class="synopsis-section-label" style="margin-bottom:8px;">📋 Tasks (${dt.length})</div>${dt.map(t=>`<div class="synopsis-item">${t.completed?'✅':'📌'} ${t.title} ${t.dueDate?'<span style="color:var(--text3);font-size:11px;">• '+fmtDate(t.dueDate)+'</span>':''}</div>`).join('')}`:''}
-      ${db_.length?`<div class="synopsis-section-label" style="margin:12px 0 8px;">🔖 Meetings (${db_.length})</div>${db_.map(b=>`<div class="synopsis-item">📅 ${b.time} – ${b.name}<br><span style="color:var(--text3);font-size:11px;">${b.purpose||''}</span></div>`).join('')}`:''}
-      <div style="margin-top:14px;"><div class="synopsis-section-label" style="margin-bottom:6px;">Summary</div><div class="synopsis-summary">${summary}</div></div>
-    </div>`;
+  const done=dt.filter(t=>t.completed).length, over=dt.filter(t=>!t.completed&&t.dueDate&&isOverdue(t)).length;
+  const summary = `${dt.length} task${dt.length!==1?'s':''} and ${db_.length} meeting${db_.length!==1?'s':''}.` + (done?` ${done} completed.`:'') + (over?` ⚠️ ${over} overdue.`:'');
+  return `<div class="synopsis-card"><div class="synopsis-date">${heading}</div>
+    ${dt.length?`<div class="synopsis-section-label" style="margin-bottom:8px;">📋 Tasks (${dt.length})</div>${dt.map(t=>`<div class="synopsis-item">${t.completed?'✅':'📌'} ${t.title}</div>`).join('')}`:''}
+    ${db_.length?`<div class="synopsis-section-label" style="margin:12px 0 8px;">🔖 Meetings (${db_.length})</div>${db_.map(b=>`<div class="synopsis-item">📅 ${b.time} – ${b.name}</div>`).join('')}`:''}
+    <div style="margin-top:14px;"><div class="synopsis-section-label" style="margin-bottom:6px;">Summary</div><div class="synopsis-summary">${summary}</div></div></div>`;
 }
 
-// ─────────────────────────────────────────
-//  BOOKING
-// ─────────────────────────────────────────
+// ───────────────────────── BOOKING ─────────────────────────
 function renderBookingCalendar() {
   const y=bkDate.getFullYear(), m=bkDate.getMonth();
   document.getElementById('bkMonth').textContent = bkDate.toLocaleDateString('en-US',{month:'long',year:'numeric'});
@@ -1332,11 +904,9 @@ function selectBkDate(ds) {
   const today = new Date(); today.setHours(0,0,0,0);
   if (parseLocalDate(ds) < today) return;
   bkSelectedDate = ds;
-  renderBookingCalendar();   // repaint right away so the clicked date lights up instantly
-  const slots  = genSlots();
-  const booked = bookings.filter(b=>b.date===ds).map(b=>b.time);
-  document.getElementById('timeSlots').innerHTML = `<div class="slots-heading">Available times for <b>${fmtDate(ds)}</b></div>` + slots.map(s=>`
-    <div class="slot ${booked.includes(s)?'booked':''}" onclick="${booked.includes(s)?'':`openBkModal('${ds}','${s}')`}">${s}</div>`).join('');
+  renderBookingCalendar();
+  const slots = genSlots(), booked = bookings.filter(b=>b.date===ds).map(b=>b.time);
+  document.getElementById('timeSlots').innerHTML = `<div class="slots-heading">Available times for <b>${fmtDate(ds)}</b></div>` + slots.map(s=>`<div class="slot ${booked.includes(s)?'booked':''}" onclick="${booked.includes(s)?'':`openBkModal('${ds}','${s}')`}">${s}</div>`).join('');
 }
 function genSlots() {
   const dur=parseInt(settings.slot)||30, out=[];
@@ -1358,7 +928,7 @@ async function confirmBooking() {
   logActivity(name+' booked a slot on '+fmtDate(bkSlot.date)+' at '+bkSlot.time);
   await push(name);
   renderBookings(); renderBookingCalendar(); closeBkModal();
-  if (bkSelectedDate) selectBkDate(bkSelectedDate);   // refresh slots so the booked one greys out
+  if (bkSelectedDate) selectBkDate(bkSelectedDate);
   document.getElementById('bkName').value='';
   document.getElementById('bkEmail').value='';
   document.getElementById('bkPurpose').value='';
@@ -1377,83 +947,58 @@ function renderBookings() {
 }
 async function delBooking(id) { bookings = bookings.filter(b=>b.id!==id); await push(); renderBookings(); }
 
-// ─────────────────────────────────────────
-//  LIST
-// ─────────────────────────────────────────
+// ───────────────────────── LIST ─────────────────────────
 function renderList() {
   document.getElementById('allTasksList').innerHTML = tasks.length ? tasks.map(taskCardHTML).join('') : '<div class="empty"><div class="empty-icon">📝</div><p>No tasks yet. Create one!</p></div>';
 }
 
-// ─────────────────────────────────────────
-//  TASK CRUD  (dates read as raw strings only —
-//  never routed through `new Date()` on save)
-// ─────────────────────────────────────────
+// ───────────────────────── TASK CRUD ─────────────────────────
 function openTaskModal(id=null) {
   editId = id;
   const t = id ? tasks.find(t=>t.id===id) : null;
   document.getElementById('taskModalTitle').textContent = t ? 'Edit Task' : 'New Task';
   document.getElementById('fTitle').value = t?.title || '';
-  document.getElementById('fDesc').value  = t?.description || '';
-  document.getElementById('fStart').value     = t?.startDateTime ? isoToLocalDateStr(t.startDateTime) : (t?.startDate || '');
+  document.getElementById('fDesc').value = t?.description || '';
+  document.getElementById('fStart').value = t?.startDateTime ? isoToLocalDateStr(t.startDateTime) : (t?.startDate || '');
   document.getElementById('fStartTime').value = t?.startDateTime ? isoToLocalTimeStr(t.startDateTime) : '';
-  document.getElementById('fDue').value       = t?.dueDateTime ? isoToLocalDateStr(t.dueDateTime) : (t?.dueDate || '');
-  document.getElementById('fDueTime').value   = t?.dueDateTime ? isoToLocalTimeStr(t.dueDateTime) : '';
+  document.getElementById('fDue').value = t?.dueDateTime ? isoToLocalDateStr(t.dueDateTime) : (t?.dueDate || '');
+  document.getElementById('fDueTime').value = t?.dueDateTime ? isoToLocalTimeStr(t.dueDateTime) : '';
   document.querySelector(`input[name="imp"][value="${t?.importance!==undefined?t.importance:true}"]`).checked = true;
   document.querySelector(`input[name="urg"][value="${t?.urgency!==undefined?t.urgency:true}"]`).checked = true;
   document.getElementById('taskModalBg').classList.add('open');
 }
 function closeTaskModal() { document.getElementById('taskModalBg').classList.remove('open'); editId=null; }
-
 async function saveTask() {
   const title = document.getElementById('fTitle').value.trim();
   if (!title) { alert('Task title required'); return; }
-  const start     = document.getElementById('fStart').value;      // raw "YYYY-MM-DD" or ''
-  const due       = document.getElementById('fDue').value;        // raw "YYYY-MM-DD" or ''
-  const startTime = document.getElementById('fStartTime').value;  // raw "HH:MM" or ''
-  const dueTime   = document.getElementById('fDueTime').value;    // raw "HH:MM" or ''
+  const start = document.getElementById('fStart').value, due = document.getElementById('fDue').value;
+  const startTime = document.getElementById('fStartTime').value, dueTime = document.getElementById('fDueTime').value;
   const imp = document.querySelector('input[name="imp"]:checked').value === 'true';
   const urg = document.querySelector('input[name="urg"]:checked').value === 'true';
-
-  // A "T"-joined local string with no "Z" is parsed by JS as THIS device's
-  // current local time — .toISOString() then converts it to a real UTC
-  // instant. That instant is what every teammate's clock will translate
-  // back from, so times always read correctly wherever each person is.
   const startDateTime = (start && startTime) ? new Date(start+'T'+startTime).toISOString() : null;
-  const dueDateTime   = (due   && dueTime)   ? new Date(due+'T'+dueTime).toISOString()     : null;
-
+  const dueDateTime = (due && dueTime) ? new Date(due+'T'+dueTime).toISOString() : null;
   if (editId) {
     const task = tasks.find(t=>t.id===editId);
     if (due && task.dueDate && due !== task.dueDate) {
       if (!task.originalDueDate) task.originalDueDate = task.dueDate;
       task.dateChanges = (task.dateChanges||0)+1;
     }
-    task.title        = title;
-    task.description  = document.getElementById('fDesc').value;
-    task.startDate     = start;
-    task.startDateTime = startDateTime;
-    task.dueDate       = due;
-    task.dueDateTime   = dueDateTime;
-    task.importance    = imp;
-    task.urgency       = urg;
+    task.title = title; task.description = document.getElementById('fDesc').value;
+    task.startDate = start; task.startDateTime = startDateTime;
+    task.dueDate = due; task.dueDateTime = dueDateTime;
+    task.importance = imp; task.urgency = urg;
     logActivity((me?.name||settings.name||'Someone')+' edited "'+title+'"');
   } else {
     tasks.push({
-      id: tid++, title,
-      description: document.getElementById('fDesc').value,
-      startDate: start, startDateTime,
-      dueDate: due, dueDateTime, originalDueDate: due,
-      importance: imp, urgency: urg,
-      completed: false, dateChanges: 0,
-      createdBy: me?.name || settings.name || '',
-      createdAt: new Date().toISOString()
+      id: tid++, title, description: document.getElementById('fDesc').value,
+      startDate: start, startDateTime, dueDate: due, dueDateTime, originalDueDate: due,
+      importance: imp, urgency: urg, completed: false, dateChanges: 0,
+      createdBy: me?.name || settings.name || '', createdAt: new Date().toISOString()
     });
     logActivity((me?.name||settings.name||'Someone')+' added "'+title+'"');
   }
-  await push();
-  renderAll();
-  closeTaskModal();
+  await push(); renderAll(); closeTaskModal();
 }
-
 async function toggleDone(id) {
   const task = tasks.find(t=>t.id===id);
   task.completed = !task.completed;
@@ -1469,27 +1014,25 @@ async function delTask(id) {
   await push(); renderAll();
 }
 
-// ─────────────────────────────────────────
-//  SETTINGS
-// ─────────────────────────────────────────
+// ───────────────────────── SETTINGS ─────────────────────────
 function loadSettings() {
   const s = localStorage.getItem('tf_settings');
   if (s) settings = JSON.parse(s);
-  document.getElementById('settingName').value  = settings.name || '';
+  document.getElementById('settingName').value = settings.name || '';
   document.getElementById('settingEmail').value = settings.email || '';
-  document.getElementById('settingSlot').value  = settings.slot || 30;
+  document.getElementById('settingSlot').value = settings.slot || 30;
+  document.getElementById('tzDisplay').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
 function saveSettings() {
-  settings.name  = document.getElementById('settingName').value.trim();
+  settings.name = document.getElementById('settingName').value.trim();
   settings.email = document.getElementById('settingEmail').value.trim();
-  settings.slot  = parseInt(document.getElementById('settingSlot').value);
+  settings.slot = parseInt(document.getElementById('settingSlot').value);
   localStorage.setItem('tf_settings', JSON.stringify(settings));
   alert('Settings saved!');
 }
 function exportData() {
   const blob = new Blob([JSON.stringify({tasks,bookings},null,2)],{type:'application/json'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
+  const url = URL.createObjectURL(blob), a = document.createElement('a');
   a.href=url; a.download='taskflow-'+toDateStr(new Date())+'.json'; a.click();
 }
 async function clearAll() {
@@ -1498,10 +1041,9 @@ async function clearAll() {
   await push(); renderAll(); alert('Cleared!');
 }
 
-// ─────────────────────────────────────────
-//  NAV
-// ─────────────────────────────────────────
+// ───────────────────────── NAV ─────────────────────────
 function go(v) {
+  closeSidebarMobile();
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
   document.getElementById(v+'View').classList.add('active');
@@ -1510,9 +1052,11 @@ function go(v) {
   if (v==='collab') { renderTeam(); renderActivity(); }
 }
 
-// ─────────────────────────────────────────
-//  BOOT
-// ─────────────────────────────────────────
+// ───────────────────────── BOOT ─────────────────────────
+if (me) {
+  document.getElementById('joinBtn').textContent = 'Session: ' + session;
+  document.getElementById('joinBtn').classList.add('joined');
+}
 loadSettings();
 loadLocal();
 renderAll();
